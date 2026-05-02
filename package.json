@@ -4,13 +4,13 @@
   "description": "Локальный веб-планировщик квартиры: точная геометрия по БТИ, мебель, электрика, экспорт для строителей и для GPT (с патчами).",
   "private": false,
   "license": "MIT",
-  "homepage": "https://github.com/<your-username>/flat-planner",
+  "homepage": "https://github.com/Ko-nD/flat-planner",
   "repository": {
     "type": "git",
-    "url": "https://github.com/<your-username>/flat-planner.git"
+    "url": "https://github.com/Ko-nD/flat-planner.git"
   },
   "bugs": {
-    "url": "https://github.com/<your-username>/flat-planner/issues"
+    "url": "https://github.com/Ko-nD/flat-planner/issues"
   },
   "keywords": [
     "apartment",
