@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { useProject, newObjectId } from '../../store/projectStore';
 import { ALL_TEMPLATES, instantiateTemplate, type TemplateGroup } from '../../catalog/templates';
+import { FLAT_TEMPLATES } from '../../templates/flatTemplates';
 import { exportJsonFile, exportMarkdown } from '../../utils/export';
 import { polygonCentroid } from '../../utils/geometry';
 import type { ProjectData } from '../../types';
@@ -33,6 +34,7 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForGpt }: Props) {
   const [showHelp, setShowHelp] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showPatch, setShowPatch] = useState(false);
+  const [showNew, setShowNew] = useState(false);
 
   // Fit с учётом поворота вида (rotation в градусах, кратно 90°)
   const fitView = (rotation: number) => {
@@ -154,6 +156,9 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForGpt }: Props) {
       </div>
 
       <div className="tb-group">
+        <button className="btn btn--small btn--accent" onClick={() => setShowNew(true)} title="Создать новый проект из готового шаблона (студия / 1-2-3 комн / blank)">
+          ✨ Новый проект
+        </button>
         <button className="btn btn--small" onClick={() => setShowHelp(true)} title="Горячие клавиши">?</button>
         <button className="btn btn--small" onClick={() => {
           if (objects.length && !confirm('Очистить все размещённые объекты? Это действие нельзя отменить.')) return;
@@ -168,6 +173,14 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForGpt }: Props) {
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
       {showTemplates && <TemplatesModal onClose={() => setShowTemplates(false)} />}
       {showPatch && <PatchDialog onClose={() => setShowPatch(false)} />}
+      {showNew && (
+        <NewProjectModal
+          hasObjects={objects.length > 0}
+          onClose={() => setShowNew(false)}
+          onApply={(data) => { loadJson(data); setShowNew(false); }}
+          onExportFirst={() => exportJsonFile(exportJson(), `${slug(meta.name)}-backup.json`)}
+        />
+      )}
     </div>
   );
 }
@@ -278,4 +291,65 @@ function labelKind(k?: string) {
 
 function plural(n: number, one: string, many: string) {
   return n === 1 ? one : many;
+}
+
+function NewProjectModal({ hasObjects, onClose, onApply, onExportFirst }: {
+  hasObjects: boolean;
+  onClose: () => void;
+  onApply: (data: ProjectData) => void;
+  onExportFirst: () => void;
+}) {
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" style={{ minWidth: 560 }} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-h">Новый проект</div>
+        <div className="modal-b">
+          <p className="muted" style={{ margin: '0 0 10px' }}>
+            Выбери шаблон. Текущая геометрия и расстановка будут заменены.
+          </p>
+          {hasObjects && (
+            <div className="warning" style={{ marginBottom: 10 }}>
+              ⚠ В текущем проекте есть размещённые объекты — они исчезнут.{' '}
+              <button className="btn btn--small" style={{ marginLeft: 6 }} onClick={onExportFirst}>
+                ⇩ Сохранить копию
+              </button>
+            </div>
+          )}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            {FLAT_TEMPLATES.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => {
+                  if (hasObjects && !confirm(`Заменить проект на «${t.title}»? Текущая расстановка будет потеряна.`)) return;
+                  onApply(t.data);
+                }}
+                style={{
+                  textAlign: 'left',
+                  padding: 12,
+                  border: '1px solid var(--line)',
+                  borderRadius: 8,
+                  background: 'var(--bg-card)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 4,
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--accent-soft)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--bg-card)'; }}
+              >
+                <strong style={{ fontSize: 13 }}>{t.title}</strong>
+                <span className="muted" style={{ fontSize: 11 }}>{t.subtitle}</span>
+                <span className="muted" style={{ fontSize: 10 }}>
+                  {t.data.geometry.rooms.length} помещений · {t.data.meta.totalArea} м²
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="modal-f">
+          <button className="btn" onClick={onClose}>Отмена</button>
+        </div>
+      </div>
+    </div>
+  );
 }
