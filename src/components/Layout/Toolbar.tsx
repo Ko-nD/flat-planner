@@ -10,6 +10,7 @@ import {
   type UserFlatTemplate,
 } from '../../templates/userFlatTemplates';
 import { buildBlankPlan } from '../../templates/blankPlan';
+import { BtiImportDialog } from './BtiImportDialog';
 import { exportJsonFile, exportMarkdown } from '../../utils/export';
 import { polygonCentroid } from '../../utils/geometry';
 import type { ProjectData } from '../../types';
@@ -47,6 +48,7 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
   const [showTemplates, setShowTemplates] = useState(false);
   const [showPatch, setShowPatch] = useState(false);
   const [showNew, setShowNew] = useState(false);
+  const [showBti, setShowBti] = useState(false);
 
   // Fit с учётом поворота вида (rotation в градусах, кратно 90°)
   const fitView = (rotation: number) => {
@@ -199,6 +201,9 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
         <button className="btn btn--small" onClick={() => setShowPatch(true)} title="Применить JSON-патч от AI (Claude / GPT / Qwen / Gemini): add/move/delete object, replace polygon, replace/remove wall, remove opening...">
           ⇩ AI-патч
         </button>
+        <button className="btn btn--small" onClick={() => setShowBti(true)} title="Импорт скана БТИ через AI: даёт промпт для любой мультимодальной LLM, та читает фото плана и возвращает JSON с геометрией.">
+          📷 БТИ→AI
+        </button>
       </div>
 
       <div className="tb-spacer" />
@@ -239,6 +244,7 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
       {showTemplates && <TemplatesModal onClose={() => setShowTemplates(false)} />}
       {showPatch && <PatchDialog onClose={() => setShowPatch(false)} />}
+      {showBti && <BtiImportDialog onClose={() => setShowBti(false)} />}
       {showNew && (
         <NewProjectModal
           hasObjects={objects.length > 0}

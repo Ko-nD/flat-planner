@@ -219,6 +219,52 @@ input, textarea, select {
   padding: 0;
 }
 .side-splitter__btn:hover { background: white; border-color: var(--line); color: var(--ink); }
+
+/* === BTI dialog steps === */
+.bti-steps {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.bti-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg-card);
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--ink);
+}
+.bti-step--active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+.bti-step__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+  font-size: 11px;
+}
+.bti-step--active .bti-step__num {
+  background: rgba(255, 255, 255, 0.3);
+}
+.bti-step__sep {
+  color: var(--ink-mute);
+  font-size: 18px;
+}
 .panel-header {
   padding: 8px 12px;
   font-weight: 600;
