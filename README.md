@@ -163,6 +163,34 @@ src/
 
 `public/project.json` — единственный источник истины для геометрии. После правки — кнопка **«↻ Шаблон»** или `localStorage.removeItem('flat-planner-project-v2')` + reload.
 
+## 🔒 Личная работа без коммитов
+
+Если ты форкнул репо чтобы спланировать **свою** квартиру, а демо в `public/project.json` хочешь оставить как есть для других — есть два способа.
+
+**Способ 1: localStorage (рекомендую)**
+Просто работай в UI. Всё автосохраняется в браузере. В репо ничего не уходит. Скачивай бэкапы через **JSON** в Toolbar и клади в локальную папку `private/` — она в `.gitignore`.
+
+**Способ 2: skip-worktree (если редактируешь `public/project.json` напрямую)**
+После первого коммита заморозь файл локально:
+
+```bash
+git update-index --skip-worktree public/project.json
+```
+
+Теперь твои локальные правки этого файла Git **не видит** — `git status` молчит, push ничего не отправляет. В репо демо остаётся стабильным.
+
+Чтобы потом подтянуть обновления из main:
+```bash
+git update-index --no-skip-worktree public/project.json
+git pull
+git update-index --skip-worktree public/project.json
+```
+
+Откатить весь skip-worktree:
+```bash
+git update-index --no-skip-worktree public/project.json
+```
+
 ## 🧭 Roadmap
 
 - [ ] Кнопка «Новый проект» с шаблонами квартир (студия / 1-2-3 комн / blank)

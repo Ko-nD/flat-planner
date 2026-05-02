@@ -33,3 +33,8 @@ apartment-*.json
 apartment-brief.md
 моя-квартира-*.zip
 
+# Личная папка для своих project.json — содержимое не коммитится,
+# но сама папка с .keep остаётся как «слот» с инструкцией.
+/private/*
+!/private/.keep
+
