@@ -24,7 +24,7 @@ export function LayersPanel() {
   const setAll = (v: boolean) => LAYER_ORDER.forEach((l) => setLayerVisible(l, v));
 
   return (
-    <div className="panel" style={{ flex: '0 0 auto' }}>
+    <div className="panel">
       <div className="panel-header">
         Слои
         <button className="btn btn--ghost btn--small" style={{ marginLeft: 'auto' }}
@@ -33,7 +33,7 @@ export function LayersPanel() {
           {allOn ? 'Скрыть всё' : 'Показать всё'}
         </button>
       </div>
-      <div className="panel-body" style={{ maxHeight: 280 }}>
+      <div className="panel-body" style={{ flex: 1 }}>
         {LAYER_ORDER.map((l) => {
           const visible = layerVisibility[l];
           return (

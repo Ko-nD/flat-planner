@@ -1,7 +1,6 @@
 import { Toolbar } from './components/Layout/Toolbar';
 import { Library } from './components/Layout/Library';
-import { LayersPanel } from './components/Layout/LayersPanel';
-import { Properties } from './components/Layout/Properties';
+import { SidePanels } from './components/Layout/SidePanels';
 import { Statusbar } from './components/Layout/Statusbar';
 import { PlanCanvas } from './components/Canvas/PlanCanvas';
 import { useProject } from './store/projectStore';
@@ -37,8 +36,7 @@ function App() {
         <PlanCanvas />
       </div>
       <div className="side">
-        <LayersPanel />
-        <Properties />
+        <SidePanels />
       </div>
       <Statusbar />
     </div>
