@@ -48,6 +48,8 @@ export function Statusbar() {
         {tool === 'place' && `Размещение${placeCatalogId ? ` — ${placeCatalogId}` : ''}`}
         {tool === 'wall-draw' && '🧱 Стена'}
         {tool === 'room-draw' && '🏠 Комната'}
+        {tool === 'door-place' && '🚪 Дверь'}
+        {tool === 'window-place' && '🪟 Окно'}
       </strong></span>
       <span className="sep">·</span>
       <span>Объектов: <strong>{objects.length}</strong></span>

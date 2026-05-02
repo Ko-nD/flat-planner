@@ -69,6 +69,7 @@ export function PlanCanvas() {
   const cancelPlacement = useProject((s) => s.cancelPlacement);
   const addWall = useProject((s) => s.addWall);
   const addRoom = useProject((s) => s.addRoom);
+  const addOpening = useProject((s) => s.addOpening);
 
   const stageRef = useRef<Konva.Stage>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null);
@@ -281,6 +282,31 @@ export function PlanCanvas() {
       return;
     }
 
+    // 🚪 / 🪟 Размещение проёма: клик рядом со стеной → проём в этой точке
+    if (button === 0 && (tool === 'door-place' || tool === 'window-place')) {
+      const w = pointerWorld();
+      if (!w) return;
+      const hit = nearestWall(w, geometry.walls, 800);
+      if (!hit) return;
+      // offset вдоль стены в мм: проекция от точки a до projected
+      const dx = hit.projected.x - hit.wall.a.x;
+      const dy = hit.projected.y - hit.wall.a.y;
+      const offset = Math.hypot(dx, dy);
+      // Проверим, что проём не выйдет за концы стены — шириной 800 (дверь) или 1500 (окно)
+      const wallLen = Math.hypot(hit.wall.b.x - hit.wall.a.x, hit.wall.b.y - hit.wall.a.y);
+      const opWidth = tool === 'door-place' ? 800 : 1500;
+      const halfW = opWidth / 2;
+      const safeOffset = Math.max(halfW + 20, Math.min(wallLen - halfW - 20, offset));
+      addOpening({
+        kind: tool === 'door-place' ? 'door' : 'window',
+        wallId: hit.wall.id,
+        offset: snapMm > 0 ? snap(safeOffset, snapMm) : safeOffset,
+        width: opWidth,
+      });
+      // По умолчанию остаёмся в режиме — можно сразу ставить ещё. Esc или клик на инструмент выйдет.
+      return;
+    }
+
     if (button === 0 && tool === 'place' && placeCatalogId) {
       const cat = findCatalog(placeCatalogId);
       if (!cat) return;
@@ -388,6 +414,7 @@ export function PlanCanvas() {
     if (tool === 'measure') return 'crosshair';
     if (tool === 'wall-draw') return 'crosshair';
     if (tool === 'room-draw') return 'crosshair';
+    if (tool === 'door-place' || tool === 'window-place') return 'crosshair';
     return 'default';
   })();
 
@@ -515,6 +542,52 @@ export function PlanCanvas() {
               />
             </Group>
           )}
+          {/* Превью размещения проёма: подсветка ближайшей стены и точки */}
+          {(tool === 'door-place' || tool === 'window-place') && cursor && (() => {
+            const hit = nearestWall(cursor, geometry.walls, 800);
+            if (!hit) return null;
+            const isWindow = tool === 'window-place';
+            const opWidth = isWindow ? 1500 : 800;
+            const color = isWindow ? '#0c8b73' : '#b35900';
+            const label = isWindow ? '🪟 окно (1500 мм)' : '🚪 дверь (800 мм)';
+            // Концы будущего проёма на оси стены
+            const ang = (hit.angleDeg * Math.PI) / 180;
+            const half = opWidth / 2;
+            const ax = hit.projected.x - Math.cos(ang) * half;
+            const ay = hit.projected.y - Math.sin(ang) * half;
+            const bx = hit.projected.x + Math.cos(ang) * half;
+            const by = hit.projected.y + Math.sin(ang) * half;
+            return (
+              <Group>
+                <Line
+                  points={[hit.wall.a.x, hit.wall.a.y, hit.wall.b.x, hit.wall.b.y]}
+                  stroke={color}
+                  strokeWidth={4}
+                  strokeScaleEnabled={false}
+                  opacity={0.4}
+                />
+                <Line
+                  points={[ax, ay, bx, by]}
+                  stroke={color}
+                  strokeWidth={6}
+                  strokeScaleEnabled={false}
+                />
+                <Circle x={hit.projected.x} y={hit.projected.y} radius={120} fill={color} stroke="#fff" strokeWidth={3} strokeScaleEnabled={false} />
+                <Text
+                  x={hit.projected.x}
+                  y={hit.projected.y - 380}
+                  text={label}
+                  fontSize={170}
+                  fontFamily="Inter, system-ui"
+                  fontStyle="600"
+                  fill={color}
+                  align="center"
+                  width={4000}
+                  offsetX={2000}
+                />
+              </Group>
+            );
+          })()}
           {/* Превью рисуемой стены */}
           {tool === 'wall-draw' && wallStart && cursor && (
             <Group>

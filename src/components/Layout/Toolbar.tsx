@@ -148,6 +148,22 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
         >
           🏠 Комната
         </button>
+        <button
+          className="btn btn--small"
+          aria-pressed={tool === 'door-place'}
+          onClick={() => setTool(tool === 'door-place' ? 'select' : 'door-place')}
+          title="Поставить дверь: клик возле стены. Ширина 800 мм по умолчанию (правки — в Свойствах). Esc — отмена."
+        >
+          🚪 Дверь
+        </button>
+        <button
+          className="btn btn--small"
+          aria-pressed={tool === 'window-place'}
+          onClick={() => setTool(tool === 'window-place' ? 'select' : 'window-place')}
+          title="Поставить окно: клик возле стены. Ширина 1500 мм по умолчанию (правки — в Свойствах)."
+        >
+          🪟 Окно
+        </button>
       </div>
 
       <div className="tb-group">

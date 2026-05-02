@@ -17,7 +17,7 @@ const DEFAULT_VISIBILITY: Record<LayerId, boolean> = Object.fromEntries(
   allLayers.map((l) => [l, true]),
 ) as Record<LayerId, boolean>;
 
-export type Tool = 'select' | 'place' | 'measure' | 'pan' | 'wall-draw' | 'room-draw';
+export type Tool = 'select' | 'place' | 'measure' | 'pan' | 'wall-draw' | 'room-draw' | 'door-place' | 'window-place';
 
 interface ViewState {
   scale: number;
@@ -136,6 +136,9 @@ interface ProjectStore {
   addRoom: (polygon: { x: number; y: number }[], name?: string) => string;
   removeRoom: (id: string) => void;
   setBounds: (widthMm: number, heightMm: number) => void;
+
+  addOpening: (op: { kind: 'door' | 'window'; wallId: string; offset: number; width?: number }) => string;
+  removeOpening: (id: string) => void;
 }
 
 const newId = () => Math.random().toString(36).slice(2, 10);
@@ -446,6 +449,24 @@ export const useProject = create<ProjectStore>((set, get) => {
     setBounds: (widthMm, heightMm) => set((s) => ({
       ...pushHistory(s),
       geometry: { ...s.geometry, bounds: { width: widthMm, height: heightMm } },
+    })),
+
+    addOpening: ({ kind, wallId, offset, width }) => {
+      const id = (kind === 'door' ? 'door-' : 'win-') + newId();
+      set((s) => {
+        const w = kind === 'window'
+          ? { id, kind, wallId, offset, width: width ?? 1500, sillHeight: 850, height: 1500 }
+          : { id, kind, wallId, offset, width: width ?? 800, swing: 'right' as const, hingeSide: 'in' as const };
+        return {
+          ...pushHistory(s),
+          geometry: { ...s.geometry, openings: [...s.geometry.openings, w] },
+        };
+      });
+      return id;
+    },
+    removeOpening: (id) => set((s) => ({
+      ...pushHistory(s),
+      geometry: { ...s.geometry, openings: s.geometry.openings.filter((o) => o.id !== id) },
     })),
 
     undo: () => set((s) => {
