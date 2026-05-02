@@ -67,6 +67,53 @@ input, textarea, select {
   overflow: hidden;
 }
 
+/* Мобильная компоновка: только тулбар + канвас + статус, без библиотеки и боковых панелей. */
+.app--mobile {
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "toolbar"
+    "canvas"
+    "status";
+}
+.app--mobile .toolbar { gap: 4px; padding: 0 8px; overflow-x: auto; }
+.app--mobile .toolbar .tb-title { font-size: 12px; margin-right: 6px; }
+.app--mobile .canvas-wrap { position: relative; }
+
+.mobile-banner {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 24px);
+  padding: 8px 12px;
+  background: rgba(15, 98, 254, 0.94);
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  font-size: 12px;
+  line-height: 1.35;
+  z-index: 10;
+}
+.mobile-banner__icon { font-size: 16px; flex: 0 0 auto; }
+.mobile-banner__text { flex: 1 1 auto; }
+.mobile-banner__close {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+.mobile-banner__close:hover { background: rgba(255, 255, 255, 0.4); }
+
 .toolbar { grid-area: toolbar; }
 .library { grid-area: library; }
 .canvas-wrap { grid-area: canvas; }

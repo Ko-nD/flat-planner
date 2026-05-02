@@ -3,13 +3,16 @@ import { Library } from './components/Layout/Library';
 import { SidePanels } from './components/Layout/SidePanels';
 import { Statusbar } from './components/Layout/Statusbar';
 import { PlanCanvas } from './components/Canvas/PlanCanvas';
+import { MobileBanner } from './components/Layout/MobileBanner';
 import { useProject } from './store/projectStore';
+import { useIsMobile } from './utils/useIsMobile';
 import { exportPdf, exportPng, exportAiPackage } from './utils/export';
 import './styles/tokens.css';
 
 function App() {
   const exportJson = useProject((s) => s.exportJson);
   const geometry = useProject((s) => s.geometry);
+  const isMobile = useIsMobile();
 
   const handleExportPng = () => {
     const stage = (window as any).__konvaStage;
@@ -25,19 +28,23 @@ function App() {
   };
 
   return (
-    <div className="app">
+    <div className={`app ${isMobile ? 'app--mobile' : ''}`}>
       <Toolbar
         onExportPng={handleExportPng}
         onExportPdf={handleExportPdf}
         onExportForAi={handleExportForAi}
+        isMobile={isMobile}
       />
-      <Library />
+      {!isMobile && <Library />}
       <div className="canvas-wrap">
         <PlanCanvas />
+        {isMobile && <MobileBanner />}
       </div>
-      <div className="side">
-        <SidePanels />
-      </div>
+      {!isMobile && (
+        <div className="side">
+          <SidePanels />
+        </div>
+      )}
       <Statusbar />
     </div>
   );

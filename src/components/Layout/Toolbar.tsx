@@ -21,9 +21,10 @@ interface Props {
   onExportPng: () => void;
   onExportPdf: () => void;
   onExportForAi: () => void;
+  isMobile?: boolean;
 }
 
-export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
+export function Toolbar({ onExportPng, onExportPdf, onExportForAi, isMobile = false }: Props) {
   const tool = useProject((s) => s.tool);
   const setTool = useProject((s) => s.setTool);
   const showGrid = useProject((s) => s.showGrid);
@@ -120,29 +121,33 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
     <div className="toolbar">
       <div className="tb-title">🏠 Планировщик квартиры</div>
 
-      <div className="tb-group">
-        <button
-          className="btn btn--small"
-          onClick={() => undo()}
-          disabled={!canUndo}
-          title="Отменить (Ctrl+Z)"
-        >
-          ↶ Назад
-        </button>
-        <button
-          className="btn btn--small"
-          onClick={() => redo()}
-          disabled={!canRedo}
-          title="Повторить (Ctrl+Shift+Z или Ctrl+Y)"
-        >
-          ↷ Вперёд
-        </button>
-      </div>
+      {!isMobile && (
+        <div className="tb-group">
+          <button
+            className="btn btn--small"
+            onClick={() => undo()}
+            disabled={!canUndo}
+            title="Отменить (Ctrl+Z)"
+          >
+            ↶ Назад
+          </button>
+          <button
+            className="btn btn--small"
+            onClick={() => redo()}
+            disabled={!canRedo}
+            title="Повторить (Ctrl+Shift+Z или Ctrl+Y)"
+          >
+            ↷ Вперёд
+          </button>
+        </div>
+      )}
 
       <div className="tb-group">
-        <button className="btn btn--small" aria-pressed={tool === 'select'} onClick={() => setTool('select')} title="Выбор (V)">
-          ▢ Выбор
-        </button>
+        {!isMobile && (
+          <button className="btn btn--small" aria-pressed={tool === 'select'} onClick={() => setTool('select')} title="Выбор (V)">
+            ▢ Выбор
+          </button>
+        )}
         <button className="btn btn--small" aria-pressed={tool === 'pan'} onClick={() => setTool('pan')} title="Панорамирование (H, или Space+drag)">
           ✋ Пан
         </button>
@@ -151,40 +156,42 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
         </button>
       </div>
 
-      <div className="tb-group">
-        <button
-          className="btn btn--small"
-          aria-pressed={tool === 'wall-draw'}
-          onClick={() => setTool(tool === 'wall-draw' ? 'select' : 'wall-draw')}
-          title="Рисовать стену: 1-й клик — старт, 2-й — конец. Shift — продолжать цепочку. Esc — отмена."
-        >
-          🧱 Стена
-        </button>
-        <button
-          className="btn btn--small"
-          aria-pressed={tool === 'room-draw'}
-          onClick={() => setTool(tool === 'room-draw' ? 'select' : 'room-draw')}
-          title="Рисовать комнату: клики — вершины полигона. Закрыть: клик в первую точку, Enter или правая кнопка. Esc — отмена."
-        >
-          🏠 Комната
-        </button>
-        <button
-          className="btn btn--small"
-          aria-pressed={tool === 'door-place'}
-          onClick={() => setTool(tool === 'door-place' ? 'select' : 'door-place')}
-          title="Поставить дверь: клик возле стены. Ширина 800 мм по умолчанию (правки — в Свойствах). Esc — отмена."
-        >
-          🚪 Дверь
-        </button>
-        <button
-          className="btn btn--small"
-          aria-pressed={tool === 'window-place'}
-          onClick={() => setTool(tool === 'window-place' ? 'select' : 'window-place')}
-          title="Поставить окно: клик возле стены. Ширина 1500 мм по умолчанию (правки — в Свойствах)."
-        >
-          🪟 Окно
-        </button>
-      </div>
+      {!isMobile && (
+        <div className="tb-group">
+          <button
+            className="btn btn--small"
+            aria-pressed={tool === 'wall-draw'}
+            onClick={() => setTool(tool === 'wall-draw' ? 'select' : 'wall-draw')}
+            title="Рисовать стену: 1-й клик — старт, 2-й — конец. Shift — продолжать цепочку. Esc — отмена."
+          >
+            🧱 Стена
+          </button>
+          <button
+            className="btn btn--small"
+            aria-pressed={tool === 'room-draw'}
+            onClick={() => setTool(tool === 'room-draw' ? 'select' : 'room-draw')}
+            title="Рисовать комнату: клики — вершины полигона. Закрыть: клик в первую точку, Enter или правая кнопка. Esc — отмена."
+          >
+            🏠 Комната
+          </button>
+          <button
+            className="btn btn--small"
+            aria-pressed={tool === 'door-place'}
+            onClick={() => setTool(tool === 'door-place' ? 'select' : 'door-place')}
+            title="Поставить дверь: клик возле стены. Ширина 800 мм по умолчанию (правки — в Свойствах). Esc — отмена."
+          >
+            🚪 Дверь
+          </button>
+          <button
+            className="btn btn--small"
+            aria-pressed={tool === 'window-place'}
+            onClick={() => setTool(tool === 'window-place' ? 'select' : 'window-place')}
+            title="Поставить окно: клик возле стены. Ширина 1500 мм по умолчанию (правки — в Свойствах)."
+          >
+            🪟 Окно
+          </button>
+        </div>
+      )}
 
       <div className="tb-group">
         <button className="btn btn--small" aria-pressed={showGrid} onClick={() => setShowGrid(!showGrid)} title="Сетка (G)">
@@ -212,29 +219,33 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
         }} title="Повернуть весь план на 90°">↻ 90°</button>
       </div>
 
-      <div className="tb-group">
-        <button className="btn btn--small" onClick={() => setShowTemplates(true)} title="Готовые шаблоны электрики">
-          ⚡ Шаблоны
-        </button>
-        <button className="btn btn--small" onClick={() => setShowPatch(true)} title="Применить JSON-патч от AI (Claude / GPT / Qwen / Gemini): add/move/delete object, replace polygon, replace/remove wall, remove opening...">
-          ⇩ AI-патч
-        </button>
-        <button className="btn btn--small" onClick={() => setShowBti(true)} title="Импорт скана БТИ через AI: даёт промпт для любой мультимодальной LLM, та читает фото плана и возвращает JSON с геометрией.">
-          📷 БТИ→AI
-        </button>
-      </div>
+      {!isMobile && (
+        <div className="tb-group">
+          <button className="btn btn--small" onClick={() => setShowTemplates(true)} title="Готовые шаблоны электрики">
+            ⚡ Шаблоны
+          </button>
+          <button className="btn btn--small" onClick={() => setShowPatch(true)} title="Применить JSON-патч от AI (Claude / GPT / Qwen / Gemini): add/move/delete object, replace polygon, replace/remove wall, remove opening...">
+            ⇩ AI-патч
+          </button>
+          <button className="btn btn--small" onClick={() => setShowBti(true)} title="Импорт скана БТИ через AI: даёт промпт для любой мультимодальной LLM, та читает фото плана и возвращает JSON с геометрией.">
+            📷 БТИ→AI
+          </button>
+        </div>
+      )}
 
       <div className="tb-spacer" />
 
       <div className="tb-group">
-        <button className="btn btn--small btn--accent" onClick={onExportForAi} title="Скачать ZIP: план PNG + JSON + Markdown — для отправки в Claude / ChatGPT / Qwen / Gemini">
-          📤 Для AI
-        </button>
+        {!isMobile && (
+          <button className="btn btn--small btn--accent" onClick={onExportForAi} title="Скачать ZIP: план PNG + JSON + Markdown — для отправки в Claude / ChatGPT / Qwen / Gemini">
+            📤 Для AI
+          </button>
+        )}
         <button className="btn btn--small" onClick={onExportPng} title="Скачать PNG плана">PNG</button>
-        <button className="btn btn--small" onClick={() => exportJsonFile(exportJson(), `${slug(meta.name)}.json`)} title="Скачать JSON-проект">JSON</button>
-        <button className="btn btn--small" onClick={() => exportMarkdown(exportJson(), `${slug(meta.name)}.md`)} title="Скачать Markdown-описание">MD</button>
-        <button className="btn btn--small" onClick={onExportPdf} title="Скачать PDF (A3, ландшафт)">PDF</button>
-        <button className="btn btn--small" onClick={() => fileInputRef.current?.click()} title="Загрузить ранее сохранённый JSON-проект">↑ Загрузить</button>
+        {!isMobile && <button className="btn btn--small" onClick={() => exportJsonFile(exportJson(), `${slug(meta.name)}.json`)} title="Скачать JSON-проект">JSON</button>}
+        {!isMobile && <button className="btn btn--small" onClick={() => exportMarkdown(exportJson(), `${slug(meta.name)}.md`)} title="Скачать Markdown-описание">MD</button>}
+        {!isMobile && <button className="btn btn--small" onClick={onExportPdf} title="Скачать PDF (A3, ландшафт)">PDF</button>}
+        {!isMobile && <button className="btn btn--small" onClick={() => fileInputRef.current?.click()} title="Загрузить ранее сохранённый JSON-проект">↑ Загрузить</button>}
         <button
           className="btn btn--small"
           onClick={handleShare}
@@ -252,18 +263,24 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
       </div>
 
       <div className="tb-group">
-        <button className="btn btn--small btn--accent" onClick={() => setShowNew(true)} title="Создать новый проект из готового шаблона (студия / 1-2-3 комн / blank)">
-          ✨ Новый проект
-        </button>
+        {!isMobile && (
+          <button className="btn btn--small btn--accent" onClick={() => setShowNew(true)} title="Создать новый проект из готового шаблона (студия / 1-2-3 комн / blank)">
+            ✨ Новый проект
+          </button>
+        )}
         <button className="btn btn--small" onClick={() => setShowHelp(true)} title="Горячие клавиши">?</button>
-        <button className="btn btn--small" onClick={() => {
-          if (objects.length && !confirm('Очистить все размещённые объекты? Это действие нельзя отменить.')) return;
-          resetProject();
-        }} title="Очистить расстановку и вернуть последний загруженный шаблон">Сброс</button>
-        <button className="btn btn--small" onClick={async () => {
-          if (objects.length && !confirm('Перечитать project.json с диска? Локальная расстановка будет очищена.')) return;
-          await forceReloadTemplate();
-        }} title="Очистить localStorage и заново загрузить public/project.json (no-cache)">↻ Шаблон</button>
+        {!isMobile && (
+          <>
+            <button className="btn btn--small" onClick={() => {
+              if (objects.length && !confirm('Очистить все размещённые объекты? Это действие нельзя отменить.')) return;
+              resetProject();
+            }} title="Очистить расстановку и вернуть последний загруженный шаблон">Сброс</button>
+            <button className="btn btn--small" onClick={async () => {
+              if (objects.length && !confirm('Перечитать project.json с диска? Локальная расстановка будет очищена.')) return;
+              await forceReloadTemplate();
+            }} title="Очистить localStorage и заново загрузить public/project.json (no-cache)">↻ Шаблон</button>
+          </>
+        )}
       </div>
 
       {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
