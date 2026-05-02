@@ -1,7 +1,15 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type CSSProperties } from 'react';
 import { useProject, newObjectId } from '../../store/projectStore';
 import { ALL_TEMPLATES, instantiateTemplate, type TemplateGroup } from '../../catalog/templates';
 import { FLAT_TEMPLATES } from '../../templates/flatTemplates';
+import {
+  loadUserFlatTemplates,
+  addUserFlatTemplate,
+  removeUserFlatTemplate,
+  parseFlatTemplateFile,
+  type UserFlatTemplate,
+} from '../../templates/userFlatTemplates';
+import { buildBlankPlan } from '../../templates/blankPlan';
 import { exportJsonFile, exportMarkdown } from '../../utils/export';
 import { polygonCentroid } from '../../utils/geometry';
 import type { ProjectData } from '../../types';
@@ -29,6 +37,10 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
   const objects = useProject((s) => s.objects);
   const meta = useProject((s) => s.meta);
   const geometry = useProject((s) => s.geometry);
+  const undo = useProject((s) => s.undo);
+  const redo = useProject((s) => s.redo);
+  const canUndo = useProject((s) => s.past.length > 0);
+  const canRedo = useProject((s) => s.future.length > 0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showHelp, setShowHelp] = useState(false);
@@ -89,6 +101,25 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
       <div className="tb-title">🏠 Планировщик квартиры</div>
 
       <div className="tb-group">
+        <button
+          className="btn btn--small"
+          onClick={() => undo()}
+          disabled={!canUndo}
+          title="Отменить (Ctrl+Z)"
+        >
+          ↶ Назад
+        </button>
+        <button
+          className="btn btn--small"
+          onClick={() => redo()}
+          disabled={!canRedo}
+          title="Повторить (Ctrl+Shift+Z или Ctrl+Y)"
+        >
+          ↷ Вперёд
+        </button>
+      </div>
+
+      <div className="tb-group">
         <button className="btn btn--small" aria-pressed={tool === 'select'} onClick={() => setTool('select')} title="Выбор (V)">
           ▢ Выбор
         </button>
@@ -97,6 +128,25 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
         </button>
         <button className="btn btn--small" aria-pressed={tool === 'measure'} onClick={() => setTool(tool === 'measure' ? 'select' : 'measure')} title="Линейка (M)">
           📏 Линейка
+        </button>
+      </div>
+
+      <div className="tb-group">
+        <button
+          className="btn btn--small"
+          aria-pressed={tool === 'wall-draw'}
+          onClick={() => setTool(tool === 'wall-draw' ? 'select' : 'wall-draw')}
+          title="Рисовать стену: 1-й клик — старт, 2-й — конец. Shift — продолжать цепочку. Esc — отмена."
+        >
+          🧱 Стена
+        </button>
+        <button
+          className="btn btn--small"
+          aria-pressed={tool === 'room-draw'}
+          onClick={() => setTool(tool === 'room-draw' ? 'select' : 'room-draw')}
+          title="Рисовать комнату: клики — вершины полигона. Закрыть: клик в первую точку, Enter или правая кнопка. Esc — отмена."
+        >
+          🏠 Комната
         </button>
       </div>
 
@@ -176,6 +226,7 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
       {showNew && (
         <NewProjectModal
           hasObjects={objects.length > 0}
+          getCurrentProject={() => exportJson()}
           onClose={() => setShowNew(false)}
           onApply={(data) => { loadJson(data); setShowNew(false); }}
           onExportFirst={() => exportJsonFile(exportJson(), `${slug(meta.name)}-backup.json`)}
@@ -202,15 +253,22 @@ function HelpModal({ onClose }: { onClose: () => void }) {
             <div><span>Выделение</span><span className="kbd">V</span></div>
             <div><span>Линейка</span><span className="kbd">M</span></div>
             <div><span>Сетка вкл/выкл</span><span className="kbd">G</span></div>
-            <div><span>Удалить выделенное</span><span className="kbd">Del</span></div>
+            <div><span>Удалить выделенное (объекты, стены, комнаты)</span><span className="kbd">Del</span></div>
             <div><span>Дублировать</span><span className="kbd">Ctrl+D</span></div>
+            <div><span>Отменить действие</span><span className="kbd">Ctrl+Z</span></div>
+            <div><span>Повторить</span><span className="kbd">Ctrl+Shift+Z</span></div>
             <div><span>Поворот +15°</span><span className="kbd">R</span></div>
             <div><span>Поворот −15°</span><span className="kbd">Shift+R</span></div>
-            <div><span>Снять выделение</span><span className="kbd">Esc</span></div>
+            <div><span>Снять выделение / отменить рисование</span><span className="kbd">Esc</span></div>
             <div><span>Shift при размещении</span><span>Не выходить из режима</span></div>
+            <div><span>Shift в режиме 🧱 Стена</span><span>Цепочка стен от последней точки</span></div>
+            <div><span>Enter в режиме 🏠 Комната</span><span>Замкнуть полигон</span></div>
           </div>
           <div className="muted" style={{ marginTop: 12 }}>
             Все размеры внутри хранятся в миллиметрах для точности; в интерфейсе показываются в см / м.
+          </div>
+          <div className="muted" style={{ marginTop: 8 }}>
+            <strong>Где хранятся чертежи?</strong> В localStorage браузера. Автосохранение каждые 1.5 секунды (см. индикатор «✓ Сохранено» в нижнем статус-баре). Чтобы перенести план на другое устройство — кнопка <strong>JSON</strong> в тулбаре скачает снапшот.
           </div>
         </div>
         <div className="modal-f">
@@ -293,15 +351,85 @@ function plural(n: number, one: string, many: string) {
   return n === 1 ? one : many;
 }
 
-function NewProjectModal({ hasObjects, onClose, onApply, onExportFirst }: {
+function NewProjectModal({ hasObjects, getCurrentProject, onClose, onApply, onExportFirst }: {
   hasObjects: boolean;
+  getCurrentProject: () => ProjectData;
   onClose: () => void;
   onApply: (data: ProjectData) => void;
   onExportFirst: () => void;
 }) {
+  const [userTemplates, setUserTemplates] = useState<UserFlatTemplate[]>(() => loadUserFlatTemplates());
+  const [savingName, setSavingName] = useState<string | null>(null);
+  const [blank, setBlank] = useState<{ name: string; w: string; h: string } | null>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
+
+  const applyBlank = () => {
+    if (!blank) return;
+    const w = Math.round(parseFloat(blank.w.replace(',', '.')) * 1000);
+    const h = Math.round(parseFloat(blank.h.replace(',', '.')) * 1000);
+    if (!Number.isFinite(w) || !Number.isFinite(h) || w < 2000 || h < 2000 || w > 30000 || h > 30000) {
+      alert('Размеры должны быть от 2 до 30 метров');
+      return;
+    }
+    const data = buildBlankPlan({ name: blank.name.trim() || `Чистый план ${blank.w}×${blank.h} м`, widthMm: w, heightMm: h });
+    if (hasObjects && !confirm('Заменить текущий план на чистую коробку? Текущая расстановка будет потеряна.')) return;
+    onApply(data);
+  };
+
+  const refresh = () => setUserTemplates(loadUserFlatTemplates());
+
+  const handleSave = () => {
+    const name = (savingName ?? '').trim();
+    if (!name) return;
+    addUserFlatTemplate(name, getCurrentProject());
+    setSavingName(null);
+    refresh();
+  };
+
+  const handleDelete = (id: string, title: string) => {
+    if (!confirm(`Удалить шаблон «${title}»?`)) return;
+    removeUserFlatTemplate(id);
+    refresh();
+  };
+
+  const handleExport = (t: UserFlatTemplate) => {
+    exportJsonFile(t.data, `template-${slug(t.title)}.json`);
+  };
+
+  const handleImport = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const { template, name } = parseFlatTemplateFile(reader.result as string);
+        const tname = prompt('Название шаблона', name || file.name.replace(/\.json$/i, ''));
+        if (tname === null) return;
+        addUserFlatTemplate(tname, template);
+        refresh();
+      } catch (e: any) {
+        alert(`Не удалось импортировать: ${e.message}`);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const sectionTitle: CSSProperties = {
+    fontSize: 11, color: 'var(--ink-soft)', textTransform: 'uppercase',
+    letterSpacing: 0.5, margin: '14px 0 6px', fontWeight: 600,
+  };
+  const cardStyle: CSSProperties = {
+    textAlign: 'left', padding: 12, border: '1px solid var(--line)', borderRadius: 8,
+    background: 'var(--bg-card)', cursor: 'pointer',
+    display: 'flex', flexDirection: 'column', gap: 4,
+  };
+
+  const askApply = (t: { title: string; data: ProjectData }) => {
+    if (hasObjects && !confirm(`Заменить проект на «${t.title}»? Текущая расстановка будет потеряна.`)) return;
+    onApply(t.data);
+  };
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" style={{ minWidth: 560 }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal" style={{ minWidth: 600, maxHeight: '85vh', overflow: 'auto' }} onClick={(e) => e.stopPropagation()}>
         <div className="modal-h">Новый проект</div>
         <div className="modal-b">
           <p className="muted" style={{ margin: '0 0 10px' }}>
@@ -315,25 +443,63 @@ function NewProjectModal({ hasObjects, onClose, onApply, onExportFirst }: {
               </button>
             </div>
           )}
+
+          {/* «С нуля»: пустая коробка W×H */}
+          <div style={{ ...sectionTitle, marginTop: 0 }}>Создать с нуля</div>
+          {blank ? (
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto auto', gap: 6, alignItems: 'center', marginBottom: 8, padding: 10, border: '1px solid var(--line)', borderRadius: 8, background: 'var(--bg-soft)' }}>
+              <input
+                type="text"
+                value={blank.name}
+                onChange={(e) => setBlank({ ...blank, name: e.target.value })}
+                placeholder="Название (например, Моя 2-комн)"
+                style={{ padding: '6px 8px', border: '1px solid var(--line)', borderRadius: 4 }}
+              />
+              <input
+                type="number"
+                step="0.1"
+                min="2"
+                max="30"
+                value={blank.w}
+                onChange={(e) => setBlank({ ...blank, w: e.target.value })}
+                placeholder="Ширина, м"
+                style={{ padding: '6px 8px', border: '1px solid var(--line)', borderRadius: 4 }}
+              />
+              <input
+                type="number"
+                step="0.1"
+                min="2"
+                max="30"
+                value={blank.h}
+                onChange={(e) => setBlank({ ...blank, h: e.target.value })}
+                placeholder="Высота, м"
+                style={{ padding: '6px 8px', border: '1px solid var(--line)', borderRadius: 4 }}
+              />
+              <button className="btn btn--small btn--accent" onClick={applyBlank}>Создать</button>
+              <button className="btn btn--small" onClick={() => setBlank(null)}>×</button>
+            </div>
+          ) : (
+            <div style={{ marginBottom: 8 }}>
+              <button
+                className="btn btn--small"
+                onClick={() => setBlank({ name: '', w: '6', h: '8' })}
+                title="Создать пустую коробку с заданными размерами. Дальше — расставляй стены и комнаты прямо на холсте инструментами 🧱 / 🏠."
+              >
+                ➕ Пустой план N×M метров
+              </button>
+              <span className="muted" style={{ fontSize: 11, marginLeft: 8 }}>
+                Дальше — рисуй стены 🧱 и комнаты 🏠 прямо на холсте.
+              </span>
+            </div>
+          )}
+
+          <div style={sectionTitle}>Встроенные</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             {FLAT_TEMPLATES.map((t) => (
               <button
                 key={t.id}
-                onClick={() => {
-                  if (hasObjects && !confirm(`Заменить проект на «${t.title}»? Текущая расстановка будет потеряна.`)) return;
-                  onApply(t.data);
-                }}
-                style={{
-                  textAlign: 'left',
-                  padding: 12,
-                  border: '1px solid var(--line)',
-                  borderRadius: 8,
-                  background: 'var(--bg-card)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 4,
-                }}
+                onClick={() => askApply(t)}
+                style={cardStyle}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--accent)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--accent-soft)'; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--bg-card)'; }}
               >
@@ -345,9 +511,86 @@ function NewProjectModal({ hasObjects, onClose, onApply, onExportFirst }: {
               </button>
             ))}
           </div>
+
+          <div style={sectionTitle}>
+            Мои шаблоны{userTemplates.length > 0 ? ` (${userTemplates.length})` : ''}
+          </div>
+          {userTemplates.length === 0 ? (
+            <div className="muted" style={{ fontSize: 11, padding: '4px 0 8px' }}>
+              Своих шаблонов пока нет. Сохрани текущий план или импортируй JSON ниже.
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {userTemplates.map((t) => (
+                <div key={t.id} style={{ ...cardStyle, cursor: 'default' }}>
+                  <button
+                    onClick={() => askApply(t)}
+                    style={{ background: 'transparent', border: 'none', padding: 0, textAlign: 'left', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 4, color: 'inherit' }}
+                    title="Применить шаблон"
+                  >
+                    <strong style={{ fontSize: 13 }}>{t.title}</strong>
+                    <span className="muted" style={{ fontSize: 11 }}>{t.subtitle}</span>
+                    <span className="muted" style={{ fontSize: 10 }}>
+                      {t.data.geometry.rooms.length} помещений · {t.data.meta.totalArea} м²
+                    </span>
+                  </button>
+                  <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                    <button className="btn btn--small" onClick={() => handleExport(t)} title="Скачать JSON шаблона">⇩ JSON</button>
+                    <button className="btn btn--small" onClick={() => handleDelete(t.id, t.title)} title="Удалить шаблон" style={{ marginLeft: 'auto', color: '#c00' }}>× Удалить</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {savingName !== null ? (
+            <div style={{ marginTop: 12, padding: 10, border: '1px solid var(--line)', borderRadius: 8, background: 'var(--bg-soft)' }}>
+              <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginBottom: 6 }}>Название нового шаблона</div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <input
+                  type="text"
+                  value={savingName}
+                  onChange={(e) => setSavingName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') setSavingName(null); }}
+                  autoFocus
+                  style={{ flex: 1, padding: '6px 8px', border: '1px solid var(--line)', borderRadius: 4 }}
+                  placeholder="Например: Моя 2-комн 54 м²"
+                />
+                <button className="btn btn--small btn--accent" onClick={handleSave}>Сохранить</button>
+                <button className="btn btn--small" onClick={() => setSavingName(null)}>Отмена</button>
+              </div>
+              <div className="muted" style={{ fontSize: 11, marginTop: 6 }}>
+                Сохранится в localStorage браузера. Чтобы перенести на другое устройство — экспортируй JSON.
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: 6, marginTop: 12, flexWrap: 'wrap' }}>
+              <button
+                className="btn btn--small btn--accent"
+                onClick={() => setSavingName(getCurrentProject().meta?.name ?? '')}
+                title="Сохранить текущий план в localStorage как шаблон"
+              >
+                💾 Сохранить текущий как шаблон
+              </button>
+              <button
+                className="btn btn--small"
+                onClick={() => importInputRef.current?.click()}
+                title="Импортировать шаблон из JSON-файла (свой или чужой ProjectData)"
+              >
+                ⇩ Импорт JSON
+              </button>
+              <input ref={importInputRef} type="file" accept="application/json,.json" style={{ display: 'none' }}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleImport(f);
+                  e.target.value = '';
+                }}
+              />
+            </div>
+          )}
         </div>
         <div className="modal-f">
-          <button className="btn" onClick={onClose}>Отмена</button>
+          <button className="btn" onClick={onClose}>Закрыть</button>
         </div>
       </div>
     </div>

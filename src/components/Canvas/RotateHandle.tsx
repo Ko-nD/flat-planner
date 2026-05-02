@@ -28,6 +28,9 @@ export function RotateHandle({ obj, onRotate }: Props) {
   const distance = obj.depth / 2 + 350;
 
   const handleDragMove = (e: Konva.KonvaEventObject<DragEvent>) => {
+    // Не даём событию всплыть до родительского Group объекта — иначе его onDragMove
+    // прочитает позицию ручки (Circle) и запишет её в obj.x/obj.y → объект «улетает» наверх.
+    e.cancelBubble = true;
     const stage = e.target.getStage();
     if (!stage) return;
     const local = stage.getRelativePointerPosition();
@@ -68,7 +71,7 @@ export function RotateHandle({ obj, onRotate }: Props) {
         onMouseDown={(e) => { e.cancelBubble = true; }}
         onDragStart={(e) => { setDragging(true); e.cancelBubble = true; }}
         onDragMove={handleDragMove}
-        onDragEnd={() => setDragging(false)}
+        onDragEnd={(e) => { setDragging(false); e.cancelBubble = true; }}
         onMouseEnter={(e) => {
           const c = e.target.getStage()?.container();
           if (c) c.style.cursor = 'grab';

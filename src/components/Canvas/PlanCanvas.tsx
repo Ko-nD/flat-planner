@@ -46,6 +46,8 @@ export function PlanCanvas() {
   const objects = useProject((s) => s.objects);
   const layerVisibility = useProject((s) => s.layerVisibility);
   const selectedIds = useProject((s) => s.selectedIds);
+  const selectedWallIds = useProject((s) => s.selectedWallIds);
+  const selectedRoomIds = useProject((s) => s.selectedRoomIds);
   const hoverId = useProject((s) => s.hoverId);
   const view = useProject((s) => s.view);
   const setView = useProject((s) => s.setView);
@@ -57,15 +59,60 @@ export function PlanCanvas() {
   const setMeasure = useProject((s) => s.setMeasure);
   const select = useProject((s) => s.select);
   const toggleSelect = useProject((s) => s.toggleSelect);
+  const toggleSelectWall = useProject((s) => s.toggleSelectWall);
+  const toggleSelectRoom = useProject((s) => s.toggleSelectRoom);
+  const clearSelectWalls = useProject((s) => s.clearSelectWalls);
+  const clearSelectRooms = useProject((s) => s.clearSelectRooms);
   const setHover = useProject((s) => s.setHover);
   const addObject = useProject((s) => s.addObject);
   const updateObject = useProject((s) => s.updateObject);
   const cancelPlacement = useProject((s) => s.cancelPlacement);
+  const addWall = useProject((s) => s.addWall);
+  const addRoom = useProject((s) => s.addRoom);
 
   const stageRef = useRef<Konva.Stage>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null);
   const [panning, setPanning] = useState(false);
   const [spaceDown, setSpaceDown] = useState(false);
+  // В режиме «🧱 Стена»: первая кликнутая точка
+  const [wallStart, setWallStart] = useState<{ x: number; y: number } | null>(null);
+  // В режиме «🏠 Комната»: накапливаемые точки полигона
+  const [roomPoints, setRoomPoints] = useState<{ x: number; y: number }[]>([]);
+
+  // Сброс in-progress при смене инструмента
+  useEffect(() => {
+    if (tool !== 'wall-draw') setWallStart(null);
+    if (tool !== 'room-draw') setRoomPoints([]);
+  }, [tool]);
+
+  // В режиме «Комната» подавляем браузерное контекстное меню — правая кнопка
+  // используется для отмены текущего полигона.
+  useEffect(() => {
+    if (tool !== 'room-draw') return;
+    const el = containerRef.current;
+    if (!el) return;
+    const handler = (e: MouseEvent) => e.preventDefault();
+    el.addEventListener('contextmenu', handler);
+    return () => el.removeEventListener('contextmenu', handler);
+  }, [tool, containerRef]);
+
+  // ESC отменяет текущую недорисованную стену/комнату
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement;
+      if (t?.tagName === 'INPUT' || t?.tagName === 'TEXTAREA') return;
+      if (e.key === 'Escape') {
+        if (wallStart) setWallStart(null);
+        if (roomPoints.length) setRoomPoints([]);
+      }
+      if (e.key === 'Enter' && tool === 'room-draw' && roomPoints.length >= 3) {
+        addRoom(roomPoints);
+        setRoomPoints([]);
+      }
+    };
+    window.addEventListener('keydown', k);
+    return () => window.removeEventListener('keydown', k);
+  }, [wallStart, roomPoints, tool, addRoom]);
 
   // Экспортируем Stage в окно для экспортных операций
   useEffect(() => {
@@ -189,6 +236,51 @@ export function PlanCanvas() {
       return;
     }
 
+    // 🧱 Рисуем стену: 1-й клик — старт, 2-й — конец, добавляем wall.
+    if (button === 0 && tool === 'wall-draw') {
+      const w = snappedWorld();
+      if (!w) return;
+      if (!wallStart) {
+        setWallStart(w);
+      } else {
+        // Игнорируем «нулевую» стену длиной < 50 мм
+        if (Math.hypot(w.x - wallStart.x, w.y - wallStart.y) < 50) {
+          setWallStart(null);
+          return;
+        }
+        addWall(wallStart, w, 100);
+        // Если зажат Shift — продолжаем цепочку от только что поставленной точки
+        setWallStart(e.evt.shiftKey ? w : null);
+      }
+      return;
+    }
+
+    // 🏠 Рисуем комнату: каждый клик добавляет вершину; double-click рядом с первой точкой
+    // или Enter завершает; правая кнопка отменяет.
+    if (button === 0 && tool === 'room-draw') {
+      const w = snappedWorld();
+      if (!w) return;
+      // Если кликнули рядом с первой точкой и точек ≥ 3 — закрываем
+      if (roomPoints.length >= 3) {
+        const first = roomPoints[0];
+        if (Math.hypot(w.x - first.x, w.y - first.y) < 200) {
+          addRoom(roomPoints);
+          setRoomPoints([]);
+          return;
+        }
+      }
+      setRoomPoints([...roomPoints, w]);
+      return;
+    }
+    if (button === 2 && tool === 'room-draw') {
+      e.evt.preventDefault();
+      if (roomPoints.length >= 3) {
+        addRoom(roomPoints);
+      }
+      setRoomPoints([]);
+      return;
+    }
+
     if (button === 0 && tool === 'place' && placeCatalogId) {
       const cat = findCatalog(placeCatalogId);
       if (!cat) return;
@@ -233,6 +325,8 @@ export function PlanCanvas() {
     // Клик по пустому месту — снять выделение
     if (button === 0 && isStage) {
       select([]);
+      clearSelectWalls();
+      clearSelectRooms();
     }
   };
 
@@ -292,6 +386,8 @@ export function PlanCanvas() {
     if (panning || spaceDown || tool === 'pan') return 'grabbing';
     if (tool === 'place') return 'crosshair';
     if (tool === 'measure') return 'crosshair';
+    if (tool === 'wall-draw') return 'crosshair';
+    if (tool === 'room-draw') return 'crosshair';
     return 'default';
   })();
 
@@ -324,11 +420,21 @@ export function PlanCanvas() {
           )}
         </Layer>
 
-        {/* Комнаты (заливка + подписи), стены, проёмы */}
-        <Layer listening={false}>
-          {/* Заливка комнат + подписи. Слой «Подписи» управляет только текстом. */}
-          <Rooms geometry={geometry} showLabels={layerVisibility.labels} />
-          {layerVisibility.walls && <Walls geometry={geometry} />}
+        {/* Комнаты (заливка + подписи), стены, проёмы. В режиме «select» — кликабельные. */}
+        <Layer listening={tool === 'select'}>
+          <Rooms
+            geometry={geometry}
+            showLabels={layerVisibility.labels}
+            selectedIds={selectedRoomIds}
+            onRoomClick={tool === 'select' ? toggleSelectRoom : undefined}
+          />
+          {layerVisibility.walls && (
+            <Walls
+              geometry={geometry}
+              selectedIds={selectedWallIds}
+              onWallClick={tool === 'select' ? toggleSelectWall : undefined}
+            />
+          )}
           {(layerVisibility.doors || layerVisibility.windows) && (
             <Openings
               geometry={geometry}
@@ -407,6 +513,53 @@ export function PlanCanvas() {
                 hovered
                 showLabel
               />
+            </Group>
+          )}
+          {/* Превью рисуемой стены */}
+          {tool === 'wall-draw' && wallStart && cursor && (
+            <Group>
+              <Line
+                points={[wallStart.x, wallStart.y, cursor.x, cursor.y]}
+                stroke="#ff7a00"
+                strokeWidth={3}
+                strokeScaleEnabled={false}
+                dash={[18, 8]}
+              />
+              <Circle x={wallStart.x} y={wallStart.y} radius={120} fill="#ff7a00" stroke="#fff" strokeWidth={3} strokeScaleEnabled={false} />
+              <Circle x={cursor.x} y={cursor.y} radius={120} stroke="#ff7a00" strokeWidth={3} strokeScaleEnabled={false} />
+              <Text
+                x={(wallStart.x + cursor.x) / 2}
+                y={(wallStart.y + cursor.y) / 2 - 320}
+                text={fmtSize(Math.hypot(cursor.x - wallStart.x, cursor.y - wallStart.y))}
+                fontSize={170}
+                fontFamily="Inter, system-ui"
+                fontStyle="600"
+                fill="#ff7a00"
+                align="center"
+                width={3000}
+                offsetX={1500}
+              />
+            </Group>
+          )}
+          {/* Превью рисуемой комнаты */}
+          {tool === 'room-draw' && roomPoints.length > 0 && (
+            <Group>
+              <Line
+                points={[
+                  ...roomPoints.flatMap((p) => [p.x, p.y]),
+                  ...(cursor ? [cursor.x, cursor.y] : []),
+                  ...(roomPoints.length >= 2 && roomPoints[0] ? [roomPoints[0].x, roomPoints[0].y] : []),
+                ]}
+                stroke="#7a3cc8"
+                strokeWidth={2.5}
+                strokeScaleEnabled={false}
+                dash={[14, 6]}
+                fill={roomPoints.length >= 3 ? 'rgba(122,60,200,0.08)' : undefined}
+                closed={roomPoints.length >= 3}
+              />
+              {roomPoints.map((p, i) => (
+                <Circle key={i} x={p.x} y={p.y} radius={i === 0 ? 150 : 110} fill={i === 0 ? '#7a3cc8' : '#fff'} stroke="#7a3cc8" strokeWidth={3} strokeScaleEnabled={false} />
+              ))}
             </Group>
           )}
           {measure && (() => {

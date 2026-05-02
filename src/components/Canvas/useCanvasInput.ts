@@ -6,6 +6,10 @@ export function useCanvasKeys() {
   const duplicateObjects = useProject((s) => s.duplicateObjects);
   const updateObject = useProject((s) => s.updateObject);
   const selectedIds = useProject((s) => s.selectedIds);
+  const selectedWallIds = useProject((s) => s.selectedWallIds);
+  const selectedRoomIds = useProject((s) => s.selectedRoomIds);
+  const removeSelectedWalls = useProject((s) => s.removeSelectedWalls);
+  const removeSelectedRooms = useProject((s) => s.removeSelectedRooms);
   const objects = useProject((s) => s.objects);
   const cancelPlacement = useProject((s) => s.cancelPlacement);
   const tool = useProject((s) => s.tool);
@@ -31,15 +35,29 @@ export function useCanvasKeys() {
       }
 
       if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selectedIds.length) {
-          removeObjects(selectedIds);
-          e.preventDefault();
-        }
+        let acted = false;
+        if (selectedIds.length) { removeObjects(selectedIds); acted = true; }
+        if (selectedWallIds.length) { removeSelectedWalls(); acted = true; }
+        if (selectedRoomIds.length) { removeSelectedRooms(); acted = true; }
+        if (acted) e.preventDefault();
         return;
       }
 
       if ((e.key === 'd' || e.key === 'D') && (e.ctrlKey || e.metaKey)) {
         if (selectedIds.length) duplicateObjects(selectedIds);
+        e.preventDefault();
+        return;
+      }
+
+      // Undo / Redo: Ctrl+Z (отмена), Ctrl+Shift+Z или Ctrl+Y (повтор)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+        if (e.shiftKey) useProject.getState().redo();
+        else useProject.getState().undo();
+        e.preventDefault();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) {
+        useProject.getState().redo();
         e.preventDefault();
         return;
       }
@@ -75,7 +93,8 @@ export function useCanvasKeys() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [
-    selectedIds, objects, tool, showGrid,
-    removeObjects, duplicateObjects, updateObject, cancelPlacement, setTool, setShowGrid,
+    selectedIds, selectedWallIds, selectedRoomIds, objects, tool, showGrid,
+    removeObjects, removeSelectedWalls, removeSelectedRooms,
+    duplicateObjects, updateObject, cancelPlacement, setTool, setShowGrid,
   ]);
 }

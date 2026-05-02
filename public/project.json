@@ -5,55 +5,196 @@
     "totalArea": 60.5,
     "livingArea": 44.8,
     "auxArea": 14.4,
-    "notes": "Демо: 3-комнатная квартира. Санузел с ОДНОЙ общей откосной фасадной стеной. Этот файл — публичный шаблон.",
+    "notes": "Демо: 3-комнатная квартира с расставленной мебелью, техникой и электрикой. Санузел с ОДНОЙ общей откосной фасадной стеной. Этот файл — публичный шаблон.",
     "updatedAt": 0
   },
   "geometry": {
-    "bounds": { "width": 6130, "height": 10820 },
+    "bounds": {
+      "width": 6130,
+      "height": 10820
+    },
     "rooms": [
-      { "id": "r1", "name": "Спальня 1", "area": 14.9, "kind": "living",
-        "polygon": [{"x":0,"y":0},{"x":3070,"y":0},{"x":3070,"y":4860},{"x":0,"y":4860}] },
-      { "id": "r2", "name": "Спальня 2", "area": 14.9, "kind": "living",
-        "polygon": [{"x":3070,"y":0},{"x":6130,"y":0},{"x":6130,"y":4860},{"x":3070,"y":4860}] },
-      { "id": "r3", "name": "Гостиная",  "area": 15.0, "kind": "living",
-        "polygon": [{"x":3070,"y":4860},{"x":6130,"y":4860},{"x":6130,"y":9720},{"x":3070,"y":9720}] },
-
-      { "id": "hall", "name": "Коридор", "area": 4.4, "kind": "hall",
+      {
+        "id": "r1",
+        "name": "Спальня 1",
+        "area": 14.9,
+        "kind": "living",
         "polygon": [
-          { "x": 0,    "y": 4860 },
-          { "x": 3070, "y": 4860 },
-          { "x": 3070, "y": 7550 },
-          { "x": 2350, "y": 7550 },
-          { "x": 2350, "y": 6335 },
-          { "x": 1500, "y": 6250 },
-          { "x": 0,    "y": 6100 }
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 3070,
+            "y": 0
+          },
+          {
+            "x": 3070,
+            "y": 4860
+          },
+          {
+            "x": 0,
+            "y": 4860
+          }
+        ]
+      },
+      {
+        "id": "r2",
+        "name": "Спальня 2",
+        "area": 14.9,
+        "kind": "living",
+        "polygon": [
+          {
+            "x": 3070,
+            "y": 0
+          },
+          {
+            "x": 6130,
+            "y": 0
+          },
+          {
+            "x": 6130,
+            "y": 4860
+          },
+          {
+            "x": 3070,
+            "y": 4860
+          }
+        ]
+      },
+      {
+        "id": "r3",
+        "name": "Гостиная",
+        "area": 15,
+        "kind": "living",
+        "polygon": [
+          {
+            "x": 3070,
+            "y": 4860
+          },
+          {
+            "x": 6130,
+            "y": 4860
+          },
+          {
+            "x": 6130,
+            "y": 9720
+          },
+          {
+            "x": 3070,
+            "y": 9720
+          }
+        ]
+      },
+      {
+        "id": "hall",
+        "name": "Коридор",
+        "area": 4.4,
+        "kind": "hall",
+        "polygon": [
+          {
+            "x": 0,
+            "y": 4860
+          },
+          {
+            "x": 3070,
+            "y": 4860
+          },
+          {
+            "x": 3070,
+            "y": 7550
+          },
+          {
+            "x": 2350,
+            "y": 7550
+          },
+          {
+            "x": 2350,
+            "y": 6335
+          },
+          {
+            "x": 1500,
+            "y": 6250
+          },
+          {
+            "x": 0,
+            "y": 6100
+          }
         ],
         "notes": "Коридор: вход слева, перед санузлом единая откосная стена, справа проход к кухне."
       },
-      { "id": "bath", "name": "Ванная", "area": 2.0, "kind": "bath",
+      {
+        "id": "bath",
+        "name": "Ванная",
+        "area": 2,
+        "kind": "bath",
         "polygon": [
-          { "x": 0,    "y": 6100 },
-          { "x": 1500, "y": 6250 },
-          { "x": 1500, "y": 7550 },
-          { "x": 0,    "y": 7550 }
+          {
+            "x": 0,
+            "y": 6100
+          },
+          {
+            "x": 1500,
+            "y": 6250
+          },
+          {
+            "x": 1500,
+            "y": 7550
+          },
+          {
+            "x": 0,
+            "y": 7550
+          }
         ],
         "notes": "Ванная слева. Фасадная стена — часть общего откоса."
       },
-      { "id": "wc", "name": "Туалет", "area": 0.9, "kind": "wc",
+      {
+        "id": "wc",
+        "name": "Туалет",
+        "area": 0.9,
+        "kind": "wc",
         "polygon": [
-          { "x": 1500, "y": 6250 },
-          { "x": 2350, "y": 6335 },
-          { "x": 2350, "y": 7550 },
-          { "x": 1500, "y": 7550 }
+          {
+            "x": 1500,
+            "y": 6250
+          },
+          {
+            "x": 2350,
+            "y": 6335
+          },
+          {
+            "x": 2350,
+            "y": 7550
+          },
+          {
+            "x": 1500,
+            "y": 7550
+          }
         ],
         "notes": "Туалет справа от ванной. Никакого срезанного угла между ванной и туалетом."
       },
-      { "id": "kitchen", "name": "Кухня", "area": 7.1, "kind": "kitchen",
+      {
+        "id": "kitchen",
+        "name": "Кухня",
+        "area": 7.1,
+        "kind": "kitchen",
         "polygon": [
-          { "x": 0,    "y": 7550 },
-          { "x": 3070, "y": 7550 },
-          { "x": 3070, "y": 9720 },
-          { "x": 0,    "y": 9720 }
+          {
+            "x": 0,
+            "y": 7550
+          },
+          {
+            "x": 3070,
+            "y": 7550
+          },
+          {
+            "x": 3070,
+            "y": 9720
+          },
+          {
+            "x": 0,
+            "y": 9720
+          }
         ],
         "notes": "Кухня снизу слева. Вход из коридора через правый проход, без door-kitchen."
       }
@@ -61,46 +202,843 @@
     "balcony": {
       "name": "Балкон",
       "area": 4.3,
-      "polygon": [{"x":100,"y":9720},{"x":6030,"y":9720},{"x":5430,"y":10820},{"x":700,"y":10820}]
+      "polygon": [
+        {
+          "x": 100,
+          "y": 9720
+        },
+        {
+          "x": 6030,
+          "y": 9720
+        },
+        {
+          "x": 5430,
+          "y": 10820
+        },
+        {
+          "x": 700,
+          "y": 10820
+        }
+      ]
     },
     "walls": [
-      { "id": "ext-n",         "a": {"x":0,"y":0},       "b": {"x":6130,"y":0},    "thickness": 250, "external": true },
-      { "id": "ext-e",         "a": {"x":6130,"y":0},    "b": {"x":6130,"y":9720}, "thickness": 250, "external": true },
-      { "id": "ext-s-kitchen", "a": {"x":0,"y":9720},    "b": {"x":3070,"y":9720}, "thickness": 250, "external": true },
-      { "id": "ext-s-r3",      "a": {"x":3070,"y":9720}, "b": {"x":6130,"y":9720}, "thickness": 250, "external": true },
-      { "id": "ext-w",         "a": {"x":0,"y":9720},    "b": {"x":0,"y":0},       "thickness": 250, "external": true },
-
-      { "id": "w-r1-r2",      "a": {"x":3070,"y":0},    "b": {"x":3070,"y":4860}, "thickness": 100 },
-      { "id": "w-top-bottom", "a": {"x":0,"y":4860},    "b": {"x":6130,"y":4860}, "thickness": 100 },
-      { "id": "w-left-r3",    "a": {"x":3070,"y":4860}, "b": {"x":3070,"y":9720}, "thickness": 100 },
-
-      { "id": "w-san-front-bath", "a": { "x": 0,    "y": 6100 }, "b": { "x": 1500, "y": 6250 }, "thickness": 100, "notes": "Левая часть единой откосной стены санузла. На ней дверь ванной." },
-      { "id": "w-san-front-wc",   "a": { "x": 1500, "y": 6250 }, "b": { "x": 2350, "y": 6335 }, "thickness": 100, "notes": "Правая часть той же единой откосной стены санузла. На ней дверь туалета." },
-      { "id": "w-bath-wc",        "a": { "x": 1500, "y": 6250 }, "b": { "x": 1500, "y": 7550 }, "thickness": 100, "notes": "Вертикальная перегородка между ванной и туалетом." },
-      { "id": "w-san-right",      "a": { "x": 2350, "y": 6335 }, "b": { "x": 2350, "y": 7550 }, "thickness": 100, "notes": "Правая стена туалета. Справа проход к кухне." },
-      { "id": "w-san-bottom",     "a": { "x": 0,    "y": 7550 }, "b": { "x": 2350, "y": 7550 }, "thickness": 100, "notes": "Нижняя стена санузла. Участок 2350..3070 открыт как проход в кухню." }
+      {
+        "id": "ext-n",
+        "a": {
+          "x": 0,
+          "y": 0
+        },
+        "b": {
+          "x": 6130,
+          "y": 0
+        },
+        "thickness": 250,
+        "external": true
+      },
+      {
+        "id": "ext-e",
+        "a": {
+          "x": 6130,
+          "y": 0
+        },
+        "b": {
+          "x": 6130,
+          "y": 9720
+        },
+        "thickness": 250,
+        "external": true
+      },
+      {
+        "id": "ext-s-kitchen",
+        "a": {
+          "x": 0,
+          "y": 9720
+        },
+        "b": {
+          "x": 3070,
+          "y": 9720
+        },
+        "thickness": 250,
+        "external": true
+      },
+      {
+        "id": "ext-s-r3",
+        "a": {
+          "x": 3070,
+          "y": 9720
+        },
+        "b": {
+          "x": 6130,
+          "y": 9720
+        },
+        "thickness": 250,
+        "external": true
+      },
+      {
+        "id": "ext-w",
+        "a": {
+          "x": 0,
+          "y": 9720
+        },
+        "b": {
+          "x": 0,
+          "y": 0
+        },
+        "thickness": 250,
+        "external": true
+      },
+      {
+        "id": "w-r1-r2",
+        "a": {
+          "x": 3070,
+          "y": 0
+        },
+        "b": {
+          "x": 3070,
+          "y": 4860
+        },
+        "thickness": 100
+      },
+      {
+        "id": "w-top-bottom",
+        "a": {
+          "x": 0,
+          "y": 4860
+        },
+        "b": {
+          "x": 6130,
+          "y": 4860
+        },
+        "thickness": 100
+      },
+      {
+        "id": "w-left-r3",
+        "a": {
+          "x": 3070,
+          "y": 4860
+        },
+        "b": {
+          "x": 3070,
+          "y": 9720
+        },
+        "thickness": 100
+      },
+      {
+        "id": "w-san-front-bath",
+        "a": {
+          "x": 0,
+          "y": 6100
+        },
+        "b": {
+          "x": 1500,
+          "y": 6250
+        },
+        "thickness": 100,
+        "notes": "Левая часть единой откосной стены санузла. На ней дверь ванной."
+      },
+      {
+        "id": "w-san-front-wc",
+        "a": {
+          "x": 1500,
+          "y": 6250
+        },
+        "b": {
+          "x": 2350,
+          "y": 6335
+        },
+        "thickness": 100,
+        "notes": "Правая часть той же единой откосной стены санузла. На ней дверь туалета."
+      },
+      {
+        "id": "w-bath-wc",
+        "a": {
+          "x": 1500,
+          "y": 6250
+        },
+        "b": {
+          "x": 1500,
+          "y": 7550
+        },
+        "thickness": 100,
+        "notes": "Вертикальная перегородка между ванной и туалетом."
+      },
+      {
+        "id": "w-san-right",
+        "a": {
+          "x": 2350,
+          "y": 6335
+        },
+        "b": {
+          "x": 2350,
+          "y": 7550
+        },
+        "thickness": 100,
+        "notes": "Правая стена туалета. Справа проход к кухне."
+      },
+      {
+        "id": "w-san-bottom",
+        "a": {
+          "x": 0,
+          "y": 7550
+        },
+        "b": {
+          "x": 2350,
+          "y": 7550
+        },
+        "thickness": 100,
+        "notes": "Нижняя стена санузла. Участок 2350..3070 открыт как проход в кухню."
+      }
     ],
     "openings": [
-      { "id": "win-r1", "kind": "window", "wallId": "ext-n", "offset": 1500, "width": 1500, "sillHeight": 850, "height": 1500, "label": "Окно (Сп.1)" },
-      { "id": "win-r2", "kind": "window", "wallId": "ext-n", "offset": 4500, "width": 1500, "sillHeight": 850, "height": 1500, "label": "Окно (Сп.2)" },
-
-      { "id": "door-balcony-kitchen", "kind": "door",   "wallId": "ext-s-kitchen", "offset": 1200, "width": 650, "swing": "left",  "hingeSide": "in", "label": "Балкон (кухня)" },
-      { "id": "win-kitchen",          "kind": "window", "wallId": "ext-s-kitchen", "offset": 2100, "width": 850, "sillHeight": 850, "height": 1400, "label": "Окно (Кухня)" },
-
-      { "id": "door-balcony-r3", "kind": "door",   "wallId": "ext-s-r3", "offset": 700,  "width": 700, "swing": "right", "hingeSide": "in", "label": "Балкон (гостиная)" },
-      { "id": "win-r3",          "kind": "window", "wallId": "ext-s-r3", "offset": 1800, "width": 900, "sillHeight": 850, "height": 1400, "label": "Окно (Гостиная)" },
-
-      { "id": "door-entry", "kind": "door", "wallId": "ext-w", "offset": 4305, "width": 900, "swing": "right", "hingeSide": "in", "label": "Входная дверь" },
-
-      { "id": "door-r1", "kind": "door", "wallId": "w-top-bottom", "offset": 1500, "width": 800, "swing": "left",  "hingeSide": "out", "label": "В Сп.1" },
-      { "id": "door-r2", "kind": "door", "wallId": "w-r1-r2",      "offset": 2400, "width": 800, "swing": "right", "hingeSide": "out", "label": "В Сп.2" },
-      { "id": "door-r3", "kind": "door", "wallId": "w-left-r3",    "offset": 600,  "width": 800, "swing": "left",  "hingeSide": "out", "label": "В Гостиную" },
-
-      { "id": "door-bath", "kind": "door", "wallId": "w-san-front-bath", "offset": 720, "width": 600, "swing": "left",  "hingeSide": "out", "label": "В ванную" },
-      { "id": "door-wc",   "kind": "door", "wallId": "w-san-front-wc",   "offset": 420, "width": 500, "swing": "right", "hingeSide": "out", "label": "В туалет" }
+      {
+        "id": "win-r1",
+        "kind": "window",
+        "wallId": "ext-n",
+        "offset": 1500,
+        "width": 1500,
+        "sillHeight": 850,
+        "height": 1500,
+        "label": "Окно (Сп.1)"
+      },
+      {
+        "id": "win-r2",
+        "kind": "window",
+        "wallId": "ext-n",
+        "offset": 4500,
+        "width": 1500,
+        "sillHeight": 850,
+        "height": 1500,
+        "label": "Окно (Сп.2)"
+      },
+      {
+        "id": "door-balcony-kitchen",
+        "kind": "door",
+        "wallId": "ext-s-kitchen",
+        "offset": 1200,
+        "width": 650,
+        "swing": "left",
+        "hingeSide": "in",
+        "label": "Балкон (кухня)"
+      },
+      {
+        "id": "win-kitchen",
+        "kind": "window",
+        "wallId": "ext-s-kitchen",
+        "offset": 2100,
+        "width": 850,
+        "sillHeight": 850,
+        "height": 1400,
+        "label": "Окно (Кухня)"
+      },
+      {
+        "id": "door-balcony-r3",
+        "kind": "door",
+        "wallId": "ext-s-r3",
+        "offset": 700,
+        "width": 700,
+        "swing": "right",
+        "hingeSide": "in",
+        "label": "Балкон (гостиная)"
+      },
+      {
+        "id": "win-r3",
+        "kind": "window",
+        "wallId": "ext-s-r3",
+        "offset": 1800,
+        "width": 900,
+        "sillHeight": 850,
+        "height": 1400,
+        "label": "Окно (Гостиная)"
+      },
+      {
+        "id": "door-entry",
+        "kind": "door",
+        "wallId": "ext-w",
+        "offset": 4305,
+        "width": 900,
+        "swing": "right",
+        "hingeSide": "in",
+        "label": "Входная дверь"
+      },
+      {
+        "id": "door-r1",
+        "kind": "door",
+        "wallId": "w-top-bottom",
+        "offset": 1500,
+        "width": 800,
+        "swing": "left",
+        "hingeSide": "out",
+        "label": "В Сп.1"
+      },
+      {
+        "id": "door-r2",
+        "kind": "door",
+        "wallId": "w-r1-r2",
+        "offset": 2400,
+        "width": 800,
+        "swing": "right",
+        "hingeSide": "out",
+        "label": "В Сп.2"
+      },
+      {
+        "id": "door-r3",
+        "kind": "door",
+        "wallId": "w-left-r3",
+        "offset": 600,
+        "width": 800,
+        "swing": "left",
+        "hingeSide": "out",
+        "label": "В Гостиную"
+      },
+      {
+        "id": "door-bath",
+        "kind": "door",
+        "wallId": "w-san-front-bath",
+        "offset": 720,
+        "width": 600,
+        "swing": "left",
+        "hingeSide": "out",
+        "label": "В ванную"
+      },
+      {
+        "id": "door-wc",
+        "kind": "door",
+        "wallId": "w-san-front-wc",
+        "offset": 420,
+        "width": 500,
+        "swing": "right",
+        "hingeSide": "out",
+        "label": "В туалет"
+      }
     ]
   },
-  "objects": [],
+  "objects": [
+    {
+      "id": "ygyalnom",
+      "catalogId": "bed-160",
+      "layer": "furniture",
+      "x": 5000,
+      "y": 4000,
+      "rotation": 90,
+      "width": 1600,
+      "depth": 2000,
+      "label": "Кровать 160×200",
+      "roomId": "r2"
+    },
+    {
+      "id": "tpdcne34",
+      "catalogId": "sofa-corner",
+      "layer": "furniture",
+      "x": 4000,
+      "y": 7800,
+      "rotation": 90,
+      "width": 2600,
+      "depth": 1700,
+      "label": "Угловой диван",
+      "roomId": "r3"
+    },
+    {
+      "id": "vwktaspz",
+      "catalogId": "wardrobe-corner",
+      "layer": "furniture",
+      "x": 5400,
+      "y": 5550,
+      "rotation": 90,
+      "width": 1200,
+      "depth": 1200,
+      "label": "Угловой шкаф",
+      "roomId": "r3",
+      "shapeData": {
+        "legA": 600,
+        "legB": 600,
+        "corner": "tl"
+      },
+      "corner": "tl"
+    },
+    {
+      "id": "85r7f98p",
+      "catalogId": "bed-160",
+      "layer": "furniture",
+      "x": 2050,
+      "y": 1000,
+      "rotation": 90,
+      "width": 1600,
+      "depth": 2000,
+      "label": "Кровать 160×200",
+      "roomId": "r1"
+    },
+    {
+      "id": "ri6azrvh",
+      "catalogId": "desk-180",
+      "layer": "furniture",
+      "x": 4050,
+      "y": 550,
+      "rotation": 0,
+      "width": 1800,
+      "depth": 800,
+      "label": "Письменный стол 1.8м",
+      "roomId": "r2"
+    },
+    {
+      "id": "6g159x80",
+      "catalogId": "dining-table-4",
+      "layer": "furniture",
+      "x": 4600,
+      "y": 8250,
+      "rotation": 90,
+      "width": 1200,
+      "depth": 800,
+      "label": "Стол на 4",
+      "roomId": "r3"
+    },
+    {
+      "id": "0zgttt1v",
+      "catalogId": "wardrobe-slide-2",
+      "layer": "furniture",
+      "x": 2700,
+      "y": 3800,
+      "rotation": 90,
+      "width": 2000,
+      "depth": 650,
+      "label": "Шкаф-купе 2м",
+      "roomId": "r1"
+    },
+    {
+      "id": "2jipe0jd",
+      "catalogId": "tv-65",
+      "layer": "appliances",
+      "x": 200,
+      "y": 950,
+      "rotation": -90,
+      "width": 1450,
+      "depth": 80,
+      "label": "Телевизор 65\"",
+      "mountHeight": 1100,
+      "roomId": "r1"
+    },
+    {
+      "id": "tpcrwjf1",
+      "catalogId": "tv-75",
+      "layer": "appliances",
+      "x": 5900,
+      "y": 8050,
+      "rotation": 90,
+      "width": 1670,
+      "depth": 80,
+      "label": "Телевизор 75\"",
+      "mountHeight": 1100
+    },
+    {
+      "id": "mcus2ks5",
+      "catalogId": "sofa-corner",
+      "layer": "furniture",
+      "x": 2350,
+      "y": 8950,
+      "rotation": 270,
+      "width": 1300,
+      "depth": 1300,
+      "label": "Угловой диван"
+    },
+    {
+      "id": "m6lzsjlj",
+      "catalogId": "stove-gas-60",
+      "layer": "appliances",
+      "x": 450,
+      "y": 8600,
+      "rotation": 90,
+      "width": 600,
+      "depth": 600,
+      "label": "Плита газовая 60",
+      "roomId": "kitchen"
+    },
+    {
+      "id": "hjiw31sw",
+      "catalogId": "sink-bath",
+      "layer": "plumbing",
+      "x": 350,
+      "y": 7950,
+      "rotation": 90,
+      "width": 600,
+      "depth": 450,
+      "label": "Раковина 600",
+      "roomId": "kitchen"
+    },
+    {
+      "id": "cnw6v9kq",
+      "catalogId": "fridge-200",
+      "layer": "appliances",
+      "x": 450,
+      "y": 9250,
+      "rotation": 90,
+      "width": 600,
+      "depth": 650,
+      "label": "Холодильник 200см",
+      "roomId": "kitchen"
+    },
+    {
+      "id": "gp4spz10",
+      "catalogId": "dining-table-2",
+      "layer": "furniture",
+      "x": 1800,
+      "y": 8450,
+      "rotation": 0,
+      "width": 800,
+      "depth": 800,
+      "label": "Стол на 2",
+      "roomId": "kitchen"
+    },
+    {
+      "id": "mz770dld",
+      "catalogId": "desk-180",
+      "layer": "furniture",
+      "x": 550,
+      "y": 3200,
+      "rotation": 90,
+      "width": 1800,
+      "depth": 800,
+      "label": "Письменный стол 1.8м",
+      "roomId": "r1"
+    },
+    {
+      "id": "qkkawblo",
+      "catalogId": "chair",
+      "layer": "furniture",
+      "x": 1200,
+      "y": 3250,
+      "rotation": 90,
+      "width": 450,
+      "depth": 450,
+      "label": "Стул",
+      "roomId": "r1"
+    },
+    {
+      "id": "91tq29eb",
+      "catalogId": "chair",
+      "layer": "furniture",
+      "x": 4000,
+      "y": 1250,
+      "rotation": 180,
+      "width": 450,
+      "depth": 450,
+      "label": "Стул",
+      "roomId": "r2"
+    },
+    {
+      "id": "3qhzb9cw",
+      "catalogId": "wardrobe-2",
+      "layer": "furniture",
+      "x": 5650,
+      "y": 2150,
+      "rotation": 90,
+      "width": 2000,
+      "depth": 600,
+      "label": "Шкаф 2м",
+      "roomId": "r2"
+    },
+    {
+      "id": "q6k1ko2l",
+      "catalogId": "socket-fridge",
+      "layer": "sockets",
+      "x": -50,
+      "y": 9250,
+      "rotation": 0,
+      "width": 80,
+      "depth": 80,
+      "label": "Розетка холодильник",
+      "mountHeight": 600
+    },
+    {
+      "id": "tcqc941p",
+      "catalogId": "tv-coax",
+      "layer": "data",
+      "x": 6150,
+      "y": 8100,
+      "rotation": 0,
+      "width": 80,
+      "depth": 80,
+      "label": "ТВ-розетка",
+      "mountHeight": 1100
+    },
+    {
+      "id": "xzgj15x9",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 5400,
+      "y": 4750,
+      "rotation": 0,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "r2"
+    },
+    {
+      "id": "xwswvarm",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 3050,
+      "y": 1800,
+      "rotation": 0,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "r1"
+    },
+    {
+      "id": "4ww6ie6o",
+      "catalogId": "tv-coax",
+      "layer": "data",
+      "x": 0,
+      "y": 1050,
+      "rotation": 0,
+      "width": 80,
+      "depth": 80,
+      "label": "ТВ-розетка",
+      "mountHeight": 1100,
+      "roomId": "r1"
+    },
+    {
+      "id": "otupf6yq",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 3000,
+      "y": 7950,
+      "rotation": 0,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "kitchen"
+    },
+    {
+      "id": "1x1rsw1n",
+      "catalogId": "socket-4",
+      "layer": "sockets",
+      "x": 5900,
+      "y": 6750,
+      "rotation": 0,
+      "width": 320,
+      "depth": 80,
+      "label": "Блок 4 розетки",
+      "mountHeight": 300,
+      "roomId": "r3"
+    },
+    {
+      "id": "lvdhwc54",
+      "catalogId": "tv-stand-2",
+      "layer": "furniture",
+      "x": 5750,
+      "y": 8100,
+      "rotation": 90,
+      "width": 2000,
+      "depth": 400,
+      "label": "ТВ-тумба 2м",
+      "roomId": "r3"
+    },
+    {
+      "id": "rzimbfwx",
+      "catalogId": "toilet-compact",
+      "layer": "plumbing",
+      "x": 1900,
+      "y": 7150,
+      "rotation": 0,
+      "width": 360,
+      "depth": 650,
+      "label": "Компакт-унитаз",
+      "roomId": "wc"
+    },
+    {
+      "id": "h16wkxvu",
+      "catalogId": "sink-bath-50",
+      "layer": "plumbing",
+      "x": 1150,
+      "y": 7300,
+      "rotation": 0,
+      "width": 500,
+      "depth": 400,
+      "label": "Раковина компакт 500",
+      "roomId": "bath"
+    },
+    {
+      "id": "vjwgqobj",
+      "catalogId": "bathtub-150",
+      "layer": "plumbing",
+      "x": 500,
+      "y": 6850,
+      "rotation": 90,
+      "width": 1250,
+      "depth": 700,
+      "label": "Ванна 150×70",
+      "roomId": "bath"
+    },
+    {
+      "id": "p5azbwge",
+      "catalogId": "socket-4",
+      "layer": "sockets",
+      "x": 3350,
+      "y": 200,
+      "rotation": 0,
+      "width": 320,
+      "depth": 80,
+      "label": "Блок 4 розетки",
+      "mountHeight": 300,
+      "roomId": "r2"
+    },
+    {
+      "id": "pzvi0lci",
+      "catalogId": "socket-3",
+      "layer": "sockets",
+      "x": 150,
+      "y": 4350,
+      "rotation": 0,
+      "width": 240,
+      "depth": 80,
+      "label": "Розетка тройная",
+      "mountHeight": 300,
+      "roomId": "r1"
+    },
+    {
+      "id": "trjt47wq",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 3200,
+      "y": 6150,
+      "rotation": 0,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "r3"
+    },
+    {
+      "id": "fcav6o0k",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 3150,
+      "y": 9350,
+      "rotation": 0,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "r3"
+    },
+    {
+      "id": "n9y9p6ol",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 2750,
+      "y": 100,
+      "rotation": 0,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "r1"
+    },
+    {
+      "id": "a5s0e43i",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 3450,
+      "y": 4900,
+      "rotation": 0,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "r3"
+    },
+    {
+      "id": "l7kywcvy",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 2600,
+      "y": 4900,
+      "rotation": 0,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "hall"
+    },
+    {
+      "id": "om9ktsgg",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 500,
+      "y": 4950,
+      "rotation": 0,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "hall"
+    },
+    {
+      "id": "mkvfzjfs",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 1450,
+      "y": 6750,
+      "rotation": 0,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "bath"
+    },
+    {
+      "id": "kwujym2a",
+      "catalogId": "socket-ac",
+      "layer": "sockets",
+      "x": 6150,
+      "y": 650,
+      "rotation": 0,
+      "width": 80,
+      "depth": 80,
+      "label": "Розетка для кондиц.",
+      "mountHeight": 2400,
+      "roomId": "r2"
+    },
+    {
+      "id": "2u0iznf8",
+      "catalogId": "ac-indoor",
+      "layer": "appliances",
+      "x": 5850,
+      "y": 600,
+      "rotation": 90,
+      "width": 950,
+      "depth": 250,
+      "label": "Кондиционер (внутр.)",
+      "mountHeight": 2400
+    },
+    {
+      "id": "8b2888r8",
+      "catalogId": "wall-hooks",
+      "layer": "furniture",
+      "x": 550,
+      "y": 4950,
+      "rotation": 0,
+      "width": 800,
+      "depth": 80,
+      "label": "Настенная вешалка",
+      "roomId": "hall"
+    },
+    {
+      "id": "flzhwodo",
+      "catalogId": "wall-hooks",
+      "layer": "furniture",
+      "x": 2600,
+      "y": 4950,
+      "rotation": 0,
+      "width": 800,
+      "depth": 80,
+      "label": "Настенная вешалка",
+      "roomId": "hall"
+    }
+  ],
   "layerVisibility": {
     "walls": true,
     "doors": true,

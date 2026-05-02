@@ -17,7 +17,7 @@ const DEFAULT_VISIBILITY: Record<LayerId, boolean> = Object.fromEntries(
   allLayers.map((l) => [l, true]),
 ) as Record<LayerId, boolean>;
 
-export type Tool = 'select' | 'place' | 'measure' | 'pan';
+export type Tool = 'select' | 'place' | 'measure' | 'pan' | 'wall-draw' | 'room-draw';
 
 interface ViewState {
   scale: number;
@@ -29,6 +29,13 @@ interface MeasureLine {
   a: { x: number; y: number };
   b: { x: number; y: number };
 }
+
+interface HistorySnapshot {
+  objects: PlacedObject[];
+  geometry: ApartmentGeometry;
+}
+
+const HISTORY_LIMIT = 50;
 
 // Встроенный fallback-шаблон — на случай если public/project.json недоступен
 const FALLBACK_TEMPLATE: ProjectData = {
@@ -50,7 +57,17 @@ interface ProjectStore {
   objects: PlacedObject[];
   layerVisibility: Record<LayerId, boolean>;
 
+  // История для Undo/Redo. Снапшоты содержат objects + geometry — это всё, что меняется
+  // пользовательскими действиями (перенос мебели, рисование стен, удаление и т.п.).
+  past: HistorySnapshot[];
+  future: HistorySnapshot[];
+
+  // Метаданные сохранения — UI показывает «✓ Сохранено» с временем последнего записи в LS.
+  lastSavedAt: number | null;
+
   selectedIds: string[];
+  selectedWallIds: string[];
+  selectedRoomIds: string[];
   hoverId: string | null;
 
   tool: Tool;
@@ -74,6 +91,14 @@ interface ProjectStore {
   select: (ids: string[]) => void;
   toggleSelect: (id: string, additive: boolean) => void;
   clearSelect: () => void;
+
+  toggleSelectWall: (id: string, additive: boolean) => void;
+  clearSelectWalls: () => void;
+  removeSelectedWalls: () => void;
+
+  toggleSelectRoom: (id: string, additive: boolean) => void;
+  clearSelectRooms: () => void;
+  removeSelectedRooms: () => void;
 
   setHover: (id: string | null) => void;
 
@@ -100,6 +125,17 @@ interface ProjectStore {
   // Прямой доступ к set для применения AI-патчей
   setGeometry: (g: ApartmentGeometry) => void;
   replaceObjects: (o: PlacedObject[]) => void;
+
+  // Undo / Redo
+  undo: () => void;
+  redo: () => void;
+
+  // Мини-редактор геометрии (рисование стен и комнат прямо в браузере)
+  addWall: (a: { x: number; y: number }, b: { x: number; y: number }, thickness?: number) => string;
+  removeWall: (id: string) => void;
+  addRoom: (polygon: { x: number; y: number }[], name?: string) => string;
+  removeRoom: (id: string) => void;
+  setBounds: (widthMm: number, heightMm: number) => void;
 }
 
 const newId = () => Math.random().toString(36).slice(2, 10);
@@ -121,6 +157,17 @@ const persistedSnapshot = (): { meta: ProjectMeta; geometry: ApartmentGeometry; 
   }
 };
 
+// Снимок текущего «изменяемого» состояния — кладём в past при каждой пользовательской мутации.
+function snapshot(s: { objects: PlacedObject[]; geometry: ApartmentGeometry }): HistorySnapshot {
+  return { objects: s.objects, geometry: s.geometry };
+}
+function pushHistory(s: ProjectStore): Partial<ProjectStore> {
+  const past = [...s.past, snapshot(s)];
+  // Обрезаем самые старые, чтобы не разрастаться
+  const trimmed = past.length > HISTORY_LIMIT ? past.slice(past.length - HISTORY_LIMIT) : past;
+  return { past: trimmed, future: [] };
+}
+
 export const useProject = create<ProjectStore>((set, get) => {
   const initial = persistedSnapshot();
   return {
@@ -133,7 +180,13 @@ export const useProject = create<ProjectStore>((set, get) => {
     objects: initial?.objects ?? [],
     layerVisibility: initial?.layerVisibility ?? DEFAULT_VISIBILITY,
 
+    past: [],
+    future: [],
+    lastSavedAt: null,
+
     selectedIds: [],
+    selectedWallIds: [],
+    selectedRoomIds: [],
     hoverId: null,
     tool: 'select',
     placeCatalogId: null,
@@ -153,16 +206,22 @@ export const useProject = create<ProjectStore>((set, get) => {
     cancelPlacement: () => set({ tool: 'select', placeCatalogId: null }),
 
     addObject: (obj) => set((s) => ({
+      ...pushHistory(s),
       objects: [...s.objects, obj],
       selectedIds: [obj.id],
     })),
-    addManyObjects: (objs) => set((s) => ({ objects: [...s.objects, ...objs] })),
+    addManyObjects: (objs) => set((s) => ({
+      ...pushHistory(s),
+      objects: [...s.objects, ...objs],
+    })),
 
     updateObject: (id, patch) => set((s) => ({
+      ...pushHistory(s),
       objects: s.objects.map((o) => (o.id === id ? { ...o, ...patch } : o)),
     })),
 
     removeObjects: (ids) => set((s) => ({
+      ...pushHistory(s),
       objects: s.objects.filter((o) => !ids.includes(o.id)),
       selectedIds: s.selectedIds.filter((id) => !ids.includes(id)),
     })),
@@ -177,7 +236,7 @@ export const useProject = create<ProjectStore>((set, get) => {
           newIds.push(id);
           copies.push({ ...o, id, x: o.x + 200, y: o.y + 200 });
         }
-        return { objects: [...s.objects, ...copies], selectedIds: newIds };
+        return { ...pushHistory(s), objects: [...s.objects, ...copies], selectedIds: newIds };
       });
       return newIds;
     },
@@ -191,7 +250,52 @@ export const useProject = create<ProjectStore>((set, get) => {
           : [...s.selectedIds, id],
       };
     }),
-    clearSelect: () => set({ selectedIds: [] }),
+    clearSelect: () => set({ selectedIds: [], selectedWallIds: [], selectedRoomIds: [] }),
+
+    toggleSelectWall: (id, additive) => set((s) => {
+      if (!additive) return { selectedWallIds: [id], selectedIds: [], selectedRoomIds: [] };
+      return {
+        selectedWallIds: s.selectedWallIds.includes(id)
+          ? s.selectedWallIds.filter((x) => x !== id)
+          : [...s.selectedWallIds, id],
+      };
+    }),
+    clearSelectWalls: () => set({ selectedWallIds: [] }),
+    removeSelectedWalls: () => set((s) => {
+      if (!s.selectedWallIds.length) return s;
+      const ids = new Set(s.selectedWallIds);
+      return {
+        ...pushHistory(s),
+        geometry: {
+          ...s.geometry,
+          walls: s.geometry.walls.filter((w) => !ids.has(w.id)),
+          openings: s.geometry.openings.filter((o) => !ids.has(o.wallId)),
+        },
+        selectedWallIds: [],
+      };
+    }),
+
+    toggleSelectRoom: (id, additive) => set((s) => {
+      if (!additive) return { selectedRoomIds: [id], selectedIds: [], selectedWallIds: [] };
+      return {
+        selectedRoomIds: s.selectedRoomIds.includes(id)
+          ? s.selectedRoomIds.filter((x) => x !== id)
+          : [...s.selectedRoomIds, id],
+      };
+    }),
+    clearSelectRooms: () => set({ selectedRoomIds: [] }),
+    removeSelectedRooms: () => set((s) => {
+      if (!s.selectedRoomIds.length) return s;
+      const ids = new Set(s.selectedRoomIds);
+      return {
+        ...pushHistory(s),
+        geometry: {
+          ...s.geometry,
+          rooms: s.geometry.rooms.filter((r) => !ids.has(r.id)),
+        },
+        selectedRoomIds: [],
+      };
+    }),
 
     setHover: (id) => set({ hoverId: id }),
 
@@ -208,6 +312,7 @@ export const useProject = create<ProjectStore>((set, get) => {
     saveLocal: () => {
       const data = get().exportJson();
       localStorage.setItem(LS_KEY, JSON.stringify(data));
+      set({ lastSavedAt: Date.now() });
     },
 
     loadLocal: () => {
@@ -234,15 +339,18 @@ export const useProject = create<ProjectStore>((set, get) => {
     },
 
     // Загрузить готовый ProjectData (например, через «↑ Загрузить») — берём ВСЁ.
-    loadJson: (data) => set({
+    loadJson: (data) => set((s) => ({
+      ...pushHistory(s),
       meta: data.meta,
       geometry: data.geometry,
       objects: data.objects ?? [],
       layerVisibility: { ...DEFAULT_VISIBILITY, ...(data.layerVisibility ?? {}) },
       selectedIds: [],
+      selectedWallIds: [],
+      selectedRoomIds: [],
       tool: 'select',
       placeCatalogId: null,
-    }),
+    })),
 
     // Установить шаблон (project.json). Если есть локальный snapshot, сохраняем его.
     loadTemplate: (data) => {
@@ -292,8 +400,84 @@ export const useProject = create<ProjectStore>((set, get) => {
       }
     },
 
-    setGeometry: (g) => set({ geometry: g }),
-    replaceObjects: (o) => set({ objects: o }),
+    setGeometry: (g) => set((s) => ({ ...pushHistory(s), geometry: g })),
+    replaceObjects: (o) => set((s) => ({ ...pushHistory(s), objects: o })),
+
+    addWall: (a, b, thickness = 100) => {
+      const id = 'w-' + newId();
+      set((s) => ({
+        ...pushHistory(s),
+        geometry: { ...s.geometry, walls: [...s.geometry.walls, { id, a, b, thickness }] },
+      }));
+      return id;
+    },
+    removeWall: (id) => set((s) => ({
+      ...pushHistory(s),
+      geometry: {
+        ...s.geometry,
+        walls: s.geometry.walls.filter((w) => w.id !== id),
+        // также убираем openings, висящие на удалённой стене
+        openings: s.geometry.openings.filter((o) => o.wallId !== id),
+      },
+    })),
+    addRoom: (polygon, name = 'Новое помещение') => {
+      const id = 'r-' + newId();
+      // Площадь по формуле shoelace, перевод мм² → м²
+      let s2 = 0;
+      for (let i = 0; i < polygon.length; i++) {
+        const p = polygon[i];
+        const q = polygon[(i + 1) % polygon.length];
+        s2 += p.x * q.y - q.x * p.y;
+      }
+      const area = +(Math.abs(s2) / 2 / 1_000_000).toFixed(2);
+      set((s) => ({
+        ...pushHistory(s),
+        geometry: {
+          ...s.geometry,
+          rooms: [...s.geometry.rooms, { id, name, kind: 'living', area, polygon }],
+        },
+      }));
+      return id;
+    },
+    removeRoom: (id) => set((s) => ({
+      ...pushHistory(s),
+      geometry: { ...s.geometry, rooms: s.geometry.rooms.filter((r) => r.id !== id) },
+    })),
+    setBounds: (widthMm, heightMm) => set((s) => ({
+      ...pushHistory(s),
+      geometry: { ...s.geometry, bounds: { width: widthMm, height: heightMm } },
+    })),
+
+    undo: () => set((s) => {
+      if (!s.past.length) return s;
+      const prev = s.past[s.past.length - 1];
+      const newPast = s.past.slice(0, -1);
+      const current = snapshot(s);
+      return {
+        past: newPast,
+        future: [current, ...s.future].slice(0, HISTORY_LIMIT),
+        objects: prev.objects,
+        geometry: prev.geometry,
+        selectedIds: [],
+        selectedWallIds: [],
+        selectedRoomIds: [],
+      };
+    }),
+    redo: () => set((s) => {
+      if (!s.future.length) return s;
+      const next = s.future[0];
+      const newFuture = s.future.slice(1);
+      const current = snapshot(s);
+      return {
+        past: [...s.past, current].slice(-HISTORY_LIMIT),
+        future: newFuture,
+        objects: next.objects,
+        geometry: next.geometry,
+        selectedIds: [],
+        selectedWallIds: [],
+        selectedRoomIds: [],
+      };
+    }),
   };
 });
 

@@ -6,6 +6,9 @@ import { fmtArea } from '../../utils/format';
 interface Props {
   geometry: ApartmentGeometry;
   showLabels?: boolean;
+  selectedIds?: string[];
+  // Если задан — полигоны комнат становятся кликабельными для выделения.
+  onRoomClick?: (id: string, additive: boolean) => void;
 }
 
 const ROOM_FILL: Record<string, string> = {
@@ -17,22 +20,31 @@ const ROOM_FILL: Record<string, string> = {
   balcony: '#f0ece2',
 };
 
-export function Rooms({ geometry, showLabels = true }: Props) {
+export function Rooms({ geometry, showLabels = true, selectedIds, onRoomClick }: Props) {
+  const interactive = !!onRoomClick;
+  const selected = selectedIds ?? [];
   return (
-    <Group listening={false}>
+    <Group listening={interactive}>
       {geometry.rooms.map((r) => {
         const c = polygonCentroid(r.polygon);
         const flat = r.polygon.flatMap((p) => [p.x, p.y]);
+        const isSel = selected.includes(r.id);
         return (
-          <Group key={r.id}>
+          <Group key={r.id} listening={interactive}>
             <Line
               points={flat}
               closed
-              fill={ROOM_FILL[r.kind] ?? '#fdfaf2'}
-              stroke="#ddd6c4"
-              strokeWidth={1}
+              fill={isSel ? '#fff3e0' : (ROOM_FILL[r.kind] ?? '#fdfaf2')}
+              stroke={isSel ? '#ff7a00' : '#ddd6c4'}
+              strokeWidth={isSel ? 3 : 1}
               strokeScaleEnabled={false}
               perfectDrawEnabled={false}
+              listening={interactive}
+              onMouseDown={interactive ? (e) => {
+                if (e.evt.button !== 0) return;
+                e.cancelBubble = true;
+                onRoomClick!(r.id, e.evt.shiftKey);
+              } : undefined}
             />
             {showLabels && (<>
               <Text
@@ -63,10 +75,10 @@ export function Rooms({ geometry, showLabels = true }: Props) {
 
       {geometry.balcony && (() => {
         const b = geometry.balcony;
-        const c = polygonCentroid(b.polygon);
+        const cb = polygonCentroid(b.polygon);
         const flat = b.polygon.flatMap((p) => [p.x, p.y]);
         return (
-          <Group>
+          <Group listening={false}>
             <Line
               points={flat}
               closed
@@ -79,7 +91,7 @@ export function Rooms({ geometry, showLabels = true }: Props) {
             />
             {showLabels && (<>
               <Text
-                x={c.x} y={c.y - 80}
+                x={cb.x} y={cb.y - 80}
                 text={b.name}
                 fontSize={140}
                 fontFamily="Inter, system-ui, sans-serif"
@@ -89,7 +101,7 @@ export function Rooms({ geometry, showLabels = true }: Props) {
                 width={2400} offsetX={1200}
               />
               <Text
-                x={c.x} y={c.y + 60}
+                x={cb.x} y={cb.y + 60}
                 text={fmtArea(b.area)}
                 fontSize={110}
                 fontFamily="Inter, system-ui, sans-serif"
