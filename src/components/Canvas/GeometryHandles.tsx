@@ -74,7 +74,8 @@ export function GeometryHandles() {
                 strokeWidth={3}
                 strokeScaleEnabled={false}
                 draggable
-                onMouseDown={(e) => { e.cancelBubble = true; beginGeometryEdit(); }}
+                onMouseDown={(e) => { e.cancelBubble = true; }}
+                onDragStart={(e) => { e.cancelBubble = true; beginGeometryEdit(); }}
                 onDragMove={onWallEndpointDrag(w.id, end)}
                 onMouseEnter={(e) => {
                   const c = e.target.getStage()?.container();

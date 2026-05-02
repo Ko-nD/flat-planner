@@ -81,10 +81,17 @@ export function PlanCanvas() {
   // В режиме «🏠 Комната»: накапливаемые точки полигона
   const [roomPoints, setRoomPoints] = useState<{ x: number; y: number }[]>([]);
 
-  // Сброс in-progress при смене инструмента
+  // Сброс in-progress при смене инструмента. Для комнаты с уже расставленными точками
+  // спрашиваем подтверждение — обидно случайным кликом потерять 5 вершин полигона.
   useEffect(() => {
-    if (tool !== 'wall-draw') setWallStart(null);
-    if (tool !== 'room-draw') setRoomPoints([]);
+    if (tool !== 'wall-draw' && wallStart) setWallStart(null);
+    if (tool !== 'room-draw' && roomPoints.length > 0) {
+      if (roomPoints.length < 3 || confirm(`Сбросить ${roomPoints.length} расставленных вершин комнаты?`)) {
+        setRoomPoints([]);
+      }
+    }
+    // wallStart/roomPoints intentionally not in deps — это reset при смене tool, а не при смене стейта
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tool]);
 
   // В режиме «Комната» подавляем браузерное контекстное меню — правая кнопка
@@ -289,20 +296,27 @@ export function PlanCanvas() {
       if (!w) return;
       const hit = nearestWall(w, geometry.walls, 800);
       if (!hit) return;
+      const wallLen = Math.hypot(hit.wall.b.x - hit.wall.a.x, hit.wall.b.y - hit.wall.a.y);
+      const opWidth = tool === 'door-place' ? 800 : 1500;
+      // Стена слишком короткая для запрошенного проёма — пытаемся подогнать ширину,
+      // и если совсем не лезет — ничего не ставим, чтобы не получить кашу.
+      const minNeeded = 400; // минимально осмысленная ширина проёма
+      if (wallLen < minNeeded + 40) {
+        console.warn(`[opening] wall ${hit.wall.id} (${Math.round(wallLen)}мм) короче минимума, проём не поставлен`);
+        return;
+      }
+      const actualWidth = Math.min(opWidth, Math.max(minNeeded, wallLen - 40));
+      const halfW = actualWidth / 2;
       // offset вдоль стены в мм: проекция от точки a до projected
       const dx = hit.projected.x - hit.wall.a.x;
       const dy = hit.projected.y - hit.wall.a.y;
       const offset = Math.hypot(dx, dy);
-      // Проверим, что проём не выйдет за концы стены — шириной 800 (дверь) или 1500 (окно)
-      const wallLen = Math.hypot(hit.wall.b.x - hit.wall.a.x, hit.wall.b.y - hit.wall.a.y);
-      const opWidth = tool === 'door-place' ? 800 : 1500;
-      const halfW = opWidth / 2;
       const safeOffset = Math.max(halfW + 20, Math.min(wallLen - halfW - 20, offset));
       addOpening({
         kind: tool === 'door-place' ? 'door' : 'window',
         wallId: hit.wall.id,
         offset: snapMm > 0 ? snap(safeOffset, snapMm) : safeOffset,
-        width: opWidth,
+        width: actualWidth,
       });
       // По умолчанию остаёмся в режиме — можно сразу ставить ещё. Esc или клик на инструмент выйдет.
       return;

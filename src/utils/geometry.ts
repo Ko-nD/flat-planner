@@ -124,6 +124,9 @@ export const nearestWall = (
 ) => {
   let best: { wall: Wall; projected: Vec2; angleDeg: number; dist: number } | null = null;
   for (const w of walls) {
+    // Игнорируем «нулевые» стены — они дают NaN/0 в расчётах проекции и offset проёмов
+    const wlen = Math.hypot(w.b.x - w.a.x, w.b.y - w.a.y);
+    if (wlen < 1) continue;
     const r = nearestPointOnSegment(p, w.a, w.b);
     if (r.dist > maxDist) continue;
     if (!best || r.dist < best.dist) {

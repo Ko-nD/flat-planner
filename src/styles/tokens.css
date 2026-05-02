@@ -135,30 +135,46 @@ input, textarea, select {
 
 /* === Toolbar === */
 .toolbar {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 12px;
+  gap: 4px;
+  padding: 0 8px;
   background: linear-gradient(#fbf6e8, #f1ead4);
   border-bottom: 1px solid var(--line);
   user-select: none;
+  /* На узких экранах (< 2400 px при полном наборе кнопок) — горизонтальный скролл вместо обрезки */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
 }
+.toolbar::-webkit-scrollbar { height: 6px; }
+.toolbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
+.toolbar::-webkit-scrollbar-track { background: transparent; }
 .toolbar .tb-group {
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 0 6px;
+  padding: 0 5px;
   border-right: 1px solid var(--line-soft);
   height: 100%;
+  flex: 0 0 auto;
 }
 .toolbar .tb-group:last-child { border-right: none; }
 .toolbar .tb-title {
   font-weight: 600;
-  font-size: 14px;
-  margin-right: 12px;
+  font-size: 13px;
+  margin-right: 8px;
   white-space: nowrap;
+  flex: 0 0 auto;
 }
-.toolbar .tb-spacer { flex: 1; }
+/* На широких экранах текст заголовка показываем, на узких — только 🏠 */
+.toolbar .tb-title__text { display: none; }
+@media (min-width: 1900px) {
+  .toolbar .tb-title__text { display: inline; }
+}
+.toolbar .tb-spacer { flex: 1 0 0; min-width: 4px; }
+.toolbar .btn { flex: 0 0 auto; }
 
 .btn {
   height: 30px;

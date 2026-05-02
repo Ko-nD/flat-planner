@@ -53,13 +53,23 @@ export function SidePanels() {
       setLayout((s) => ({ ...s, split: Math.max(0.1, Math.min(0.9, fraction)) }));
     };
     const up = () => setDragging(false);
+    // mouseleave на корне страницы → если курсор уехал из окна, считаем drag завершённым.
+    // Также blur (Alt-Tab) и pointercancel — иначе drag залипает.
+    const onLeave = (e: MouseEvent) => {
+      // Срабатывает только когда курсор покидает viewport (relatedTarget=null или вне html)
+      if (!e.relatedTarget) up();
+    };
     window.addEventListener('mousemove', move);
     window.addEventListener('mouseup', up);
+    window.addEventListener('blur', up);
+    document.documentElement.addEventListener('mouseleave', onLeave);
     document.body.style.cursor = 'row-resize';
     document.body.style.userSelect = 'none';
     return () => {
       window.removeEventListener('mousemove', move);
       window.removeEventListener('mouseup', up);
+      window.removeEventListener('blur', up);
+      document.documentElement.removeEventListener('mouseleave', onLeave);
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
     };

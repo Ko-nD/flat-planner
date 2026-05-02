@@ -4,6 +4,7 @@ import type {
   ApartmentGeometry, LayerId, PlacedObject, ProjectMeta, ProjectData,
 } from '../types';
 import { findCatalog } from '../catalog/catalog';
+import { tryLoadFromHash, clearShareHash } from '../utils/share';
 
 const LS_KEY = 'flat-planner-project-v2';
 const TEMPLATE_URL = `${import.meta.env.BASE_URL}project.json`;
@@ -319,9 +320,15 @@ export const useProject = create<ProjectStore>((set, get) => {
     setMeta: (patch) => set((s) => ({ meta: { ...s.meta, ...patch, updatedAt: Date.now() } })),
 
     saveLocal: () => {
-      const data = get().exportJson();
-      localStorage.setItem(LS_KEY, JSON.stringify(data));
-      set({ lastSavedAt: Date.now() });
+      // localStorage может бросить в Safari Private Mode и при quota-exceeded.
+      // Не валим bootstrap и автосохранение — просто проглатываем.
+      try {
+        const data = get().exportJson();
+        localStorage.setItem(LS_KEY, JSON.stringify(data));
+        set({ lastSavedAt: Date.now() });
+      } catch (e) {
+        console.warn('[saveLocal] localStorage unavailable:', e);
+      }
     },
 
     loadLocal: () => {
@@ -554,7 +561,6 @@ export async function bootstrapTemplate() {
   // 1) Шар-ссылка в hash имеет наивысший приоритет
   let loadedFromHash = false;
   try {
-    const { tryLoadFromHash, clearShareHash } = await import('../utils/share');
     const fromHash = await tryLoadFromHash();
     if (fromHash) {
       useProject.getState().loadJson(fromHash);

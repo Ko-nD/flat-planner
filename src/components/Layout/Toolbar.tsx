@@ -12,6 +12,7 @@ import {
 import { buildBlankPlan } from '../../templates/blankPlan';
 import { BtiImportDialog } from './BtiImportDialog';
 import { buildShareUrl } from '../../utils/share';
+import { DropdownMenu } from './DropdownMenu';
 import { exportJsonFile, exportMarkdown } from '../../utils/export';
 import { polygonCentroid } from '../../utils/geometry';
 import type { ProjectData } from '../../types';
@@ -54,18 +55,35 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi, isMobile = fa
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'error'>('idle');
 
   const handleShare = async () => {
+    let url = '';
     try {
-      const url = await buildShareUrl(exportJson());
-      if (url.length > 12000) {
-        if (!confirm(`Длина ссылки ~${Math.round(url.length / 1024)} КБ. Некоторые мессенджеры обрежут URL такой длины. Всё равно скопировать?`)) return;
-      }
-      await navigator.clipboard.writeText(url);
-      setShareStatus('copied');
-      setTimeout(() => setShareStatus('idle'), 2000);
+      url = await buildShareUrl(exportJson());
     } catch (e: any) {
-      console.error('Share failed', e);
+      console.error('Share build failed', e);
       setShareStatus('error');
       setTimeout(() => setShareStatus('idle'), 2500);
+      return;
+    }
+    if (url.length > 12000) {
+      if (!confirm(`Длина ссылки ~${Math.round(url.length / 1024)} КБ. Некоторые мессенджеры обрежут URL такой длины. Всё равно скопировать?`)) return;
+    }
+    // Clipboard API доступен только на secure contexts (https / localhost). На http/file://
+    // показываем prompt() с готовой строкой — пользователь скопирует её сам.
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+        setShareStatus('copied');
+        setTimeout(() => setShareStatus('idle'), 2000);
+      } else {
+        prompt('Скопируй ссылку (Ctrl+C → Enter):', url);
+        setShareStatus('copied');
+        setTimeout(() => setShareStatus('idle'), 2000);
+      }
+    } catch (e: any) {
+      console.error('Clipboard failed, fallback to prompt', e);
+      prompt('Скопируй ссылку (Ctrl+C → Enter):', url);
+      setShareStatus('copied');
+      setTimeout(() => setShareStatus('idle'), 2000);
     }
   };
 
@@ -119,7 +137,9 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi, isMobile = fa
 
   return (
     <div className="toolbar">
-      <div className="tb-title">🏠 Планировщик квартиры</div>
+      <div className="tb-title" title="Планировщик квартиры">
+        🏠<span className="tb-title__text"> Планировщик квартиры</span>
+      </div>
 
       {!isMobile && (
         <div className="tb-group">
@@ -241,17 +261,28 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi, isMobile = fa
             📤 Для AI
           </button>
         )}
-        <button className="btn btn--small" onClick={onExportPng} title="Скачать PNG плана">PNG</button>
-        {!isMobile && <button className="btn btn--small" onClick={() => exportJsonFile(exportJson(), `${slug(meta.name)}.json`)} title="Скачать JSON-проект">JSON</button>}
-        {!isMobile && <button className="btn btn--small" onClick={() => exportMarkdown(exportJson(), `${slug(meta.name)}.md`)} title="Скачать Markdown-описание">MD</button>}
-        {!isMobile && <button className="btn btn--small" onClick={onExportPdf} title="Скачать PDF (A3, ландшафт)">PDF</button>}
-        {!isMobile && <button className="btn btn--small" onClick={() => fileInputRef.current?.click()} title="Загрузить ранее сохранённый JSON-проект">↑ Загрузить</button>}
+        {isMobile ? (
+          <button className="btn btn--small" onClick={onExportPng} title="Скачать PNG плана">PNG</button>
+        ) : (
+          <DropdownMenu
+            trigger={<>📥 Экспорт ▾</>}
+            triggerTitle="Скачать план в разных форматах: PNG, PDF, JSON, Markdown. Или загрузить ранее сохранённый JSON."
+            items={[
+              { icon: '🖼', label: 'PNG (картинка)', onClick: onExportPng, title: 'Скачать растровое изображение плана' },
+              { icon: '📄', label: 'PDF (A3, ландшафт)', onClick: onExportPdf, title: 'Скачать PDF для печати/строителя' },
+              { icon: '{ }', label: 'JSON (исходник)', onClick: () => exportJsonFile(exportJson(), `${slug(meta.name)}.json`), title: 'Скачать ProjectData JSON для бэкапа или переноса' },
+              { icon: '📝', label: 'Markdown (текст)', onClick: () => exportMarkdown(exportJson(), `${slug(meta.name)}.md`), title: 'Скачать описание планировки в Markdown с таблицей по комнатам' },
+              'sep',
+              { icon: '↑', label: 'Загрузить JSON…', onClick: () => fileInputRef.current?.click(), title: 'Загрузить ранее сохранённый JSON-проект с диска' },
+            ]}
+          />
+        )}
         <button
           className="btn btn--small"
           onClick={handleShare}
           title="Скопировать ссылку с проектом — текущее состояние закодировано в URL (gzip + base64). Открыв ссылку, любой увидит твой план без файлов."
         >
-          {shareStatus === 'copied' ? '✓ Ссылка в буфере' : shareStatus === 'error' ? '⚠ Ошибка' : '🔗 Поделиться'}
+          {shareStatus === 'copied' ? '✓ Ссылка' : shareStatus === 'error' ? '⚠ Ошибка' : '🔗 Поделиться'}
         </button>
         <input ref={fileInputRef} type="file" accept="application/json,.json" style={{ display: 'none' }}
           onChange={(e) => {
@@ -270,16 +301,31 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi, isMobile = fa
         )}
         <button className="btn btn--small" onClick={() => setShowHelp(true)} title="Горячие клавиши">?</button>
         {!isMobile && (
-          <>
-            <button className="btn btn--small" onClick={() => {
-              if (objects.length && !confirm('Очистить все размещённые объекты? Это действие нельзя отменить.')) return;
-              resetProject();
-            }} title="Очистить расстановку и вернуть последний загруженный шаблон">Сброс</button>
-            <button className="btn btn--small" onClick={async () => {
-              if (objects.length && !confirm('Перечитать project.json с диска? Локальная расстановка будет очищена.')) return;
-              await forceReloadTemplate();
-            }} title="Очистить localStorage и заново загрузить public/project.json (no-cache)">↻ Шаблон</button>
-          </>
+          <DropdownMenu
+            trigger={<>⚙ ▾</>}
+            triggerTitle="Сервисные действия: сбросить расстановку или перечитать шаблон с диска"
+            align="right"
+            items={[
+              {
+                icon: '↺',
+                label: 'Сброс расстановки',
+                title: 'Очистить все размещённые объекты и вернуться к загруженному шаблону',
+                onClick: () => {
+                  if (objects.length && !confirm('Очистить все размещённые объекты? Это действие нельзя отменить.')) return;
+                  resetProject();
+                },
+              },
+              {
+                icon: '↻',
+                label: 'Перечитать project.json',
+                title: 'Очистить localStorage и заново загрузить public/project.json (no-cache)',
+                onClick: async () => {
+                  if (objects.length && !confirm('Перечитать project.json с диска? Локальная расстановка будет очищена.')) return;
+                  await forceReloadTemplate();
+                },
+              },
+            ]}
+          />
         )}
       </div>
 

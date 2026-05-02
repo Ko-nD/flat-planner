@@ -66,7 +66,9 @@ export function useCanvasKeys() {
         const delta = e.shiftKey ? -15 : 15;
         for (const id of selectedIds) {
           const obj = objects.find((o) => o.id === id);
-          if (obj) updateObject(id, { rotation: (obj.rotation + delta) % 360 });
+          // Нормализация в [0..360) — обычный `%` сохраняет знак для отрицательных,
+          // что давало бы -15° вместо 345° после Shift+R на rotation=0.
+          if (obj) updateObject(id, { rotation: ((obj.rotation + delta) % 360 + 360) % 360 });
         }
         return;
       }
