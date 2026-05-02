@@ -97,7 +97,7 @@ interface ProjectStore {
   // Принудительная перезагрузка шаблона из public/project.json — стирает локальный snapshot
   forceReloadTemplate: () => Promise<void>;
 
-  // Прямой доступ к set для применения GPT-патчей
+  // Прямой доступ к set для применения AI-патчей
   setGeometry: (g: ApartmentGeometry) => void;
   replaceObjects: (o: PlacedObject[]) => void;
 }

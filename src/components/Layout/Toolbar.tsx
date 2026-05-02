@@ -10,10 +10,10 @@ import { PatchDialog } from './PatchDialog';
 interface Props {
   onExportPng: () => void;
   onExportPdf: () => void;
-  onExportForGpt: () => void;
+  onExportForAi: () => void;
 }
 
-export function Toolbar({ onExportPng, onExportPdf, onExportForGpt }: Props) {
+export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
   const tool = useProject((s) => s.tool);
   const setTool = useProject((s) => s.setTool);
   const showGrid = useProject((s) => s.showGrid);
@@ -130,16 +130,16 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForGpt }: Props) {
         <button className="btn btn--small" onClick={() => setShowTemplates(true)} title="Готовые шаблоны электрики">
           ⚡ Шаблоны
         </button>
-        <button className="btn btn--small" onClick={() => setShowPatch(true)} title="Применить JSON-патч от GPT (add/move/delete object, replace polygon, replace/remove wall, remove opening...)">
-          ⇩ GPT-патч
+        <button className="btn btn--small" onClick={() => setShowPatch(true)} title="Применить JSON-патч от AI (Claude / GPT / Qwen / Gemini): add/move/delete object, replace polygon, replace/remove wall, remove opening...">
+          ⇩ AI-патч
         </button>
       </div>
 
       <div className="tb-spacer" />
 
       <div className="tb-group">
-        <button className="btn btn--small btn--accent" onClick={onExportForGpt} title="Скачать пакет: PNG плана + JSON + Markdown — для отправки в GPT">
-          📤 Для GPT
+        <button className="btn btn--small btn--accent" onClick={onExportForAi} title="Скачать ZIP: план PNG + JSON + Markdown — для отправки в Claude / ChatGPT / Qwen / Gemini">
+          📤 Для AI
         </button>
         <button className="btn btn--small" onClick={onExportPng} title="Скачать PNG плана">PNG</button>
         <button className="btn btn--small" onClick={() => exportJsonFile(exportJson(), `${slug(meta.name)}.json`)} title="Скачать JSON-проект">JSON</button>

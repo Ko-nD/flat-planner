@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { useProject } from '../../store/projectStore';
-import { applyPatch, parsePatch, previewPatch, type GptPatch, type PatchPreview } from '../../utils/patch';
+import { applyPatch, parsePatch, previewPatch, type AiPatch, type PatchPreview } from '../../utils/patch';
 
 interface Props {
   onClose: () => void;
@@ -35,7 +35,7 @@ export function PatchDialog({ onClose }: Props) {
   const loadJson   = useProject((s) => s.loadJson);
 
   const [text, setText] = useState('');
-  const [parsed, setParsed] = useState<GptPatch | null>(null);
+  const [parsed, setParsed] = useState<AiPatch | null>(null);
   const [parseError, setParseError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -77,7 +77,7 @@ export function PatchDialog({ onClose }: Props) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" style={{ minWidth: 720, maxWidth: 920 }} onClick={(e) => e.stopPropagation()}>
-        <div className="modal-h">Импорт GPT-патча</div>
+        <div className="modal-h">Импорт AI-патча</div>
         <div className="modal-b" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           {/* Левая: ввод JSON */}
           <div>

@@ -1,4 +1,6 @@
-// Применение GPT-патча к проекту. Поддерживаемые операции (op):
+// Применение AI-патча к проекту. Совместим с любой мультимодальной LLM
+// (Claude, GPT-4o/o1, Qwen-VL, Gemini, Llama-Vision и т.п.).
+// Поддерживаемые операции (op):
 //   - add_object        { object: PlacedObject }
 //   - update_object     { id: string, patch: Partial<PlacedObject> }
 //   - move_object       { id: string, x: number, y: number }
@@ -37,7 +39,7 @@ export type PatchOp =
   | { op: 'update_opening';        id: string; patch: Partial<Opening>; reason?: string }
   | { op: 'remove_opening';        id: string; reason?: string };
 
-export interface GptPatch {
+export interface AiPatch {
   version?: string;
   ops: PatchOp[];
 }
@@ -58,7 +60,7 @@ export interface PatchPreview {
 }
 
 // Жёсткая валидация входного JSON
-export function parsePatch(input: string): GptPatch {
+export function parsePatch(input: string): AiPatch {
   let parsed: any;
   try { parsed = JSON.parse(input); }
   catch (e: any) { throw new Error('Невалидный JSON: ' + e.message); }
@@ -76,7 +78,7 @@ export function parsePatch(input: string): GptPatch {
 }
 
 // Вернуть план применения с подсказками, что сломается, без мутаций.
-export function previewPatch(state: ProjectData, patch: GptPatch): PatchPreview {
+export function previewPatch(state: ProjectData, patch: AiPatch): PatchPreview {
   const items: PatchPreviewItem[] = [];
   // Делаем рабочую копию для цепочной валидации (например, add потом update того же id)
   const draft = clone(state);
@@ -105,7 +107,7 @@ export function previewPatch(state: ProjectData, patch: GptPatch): PatchPreview 
 }
 
 // Применить весь патч. Возвращает новый ProjectData. НЕ мутирует input.
-export function applyPatch(state: ProjectData, patch: GptPatch): ProjectData {
+export function applyPatch(state: ProjectData, patch: AiPatch): ProjectData {
   const out = clone(state);
   for (const op of patch.ops) {
     try { applyOp(op, out); } catch { /* пропускаем сломанные ops */ }

@@ -199,7 +199,7 @@ const THREE_ROOM: ProjectData = {
 // === Пустая коробка 6×8 м (без внутренних стен) ===
 const BLANK: ProjectData = {
   version: '1.0',
-  meta: { name: 'Чистый план 6×8 м', totalArea: 48.0, livingArea: 0, auxArea: 0, notes: 'Пустая коробка. Добавляй стены и помещения через GPT-патч или редактируя project.json.', updatedAt: Date.now() },
+  meta: { name: 'Чистый план 6×8 м', totalArea: 48.0, livingArea: 0, auxArea: 0, notes: 'Пустая коробка. Добавляй стены и помещения через AI-патч или редактируя project.json.', updatedAt: Date.now() },
   geometry: {
     bounds: { width: 6000, height: 8000 },
     rooms: [

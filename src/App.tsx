@@ -5,7 +5,7 @@ import { Properties } from './components/Layout/Properties';
 import { Statusbar } from './components/Layout/Statusbar';
 import { PlanCanvas } from './components/Canvas/PlanCanvas';
 import { useProject } from './store/projectStore';
-import { exportPdf, exportPng, exportGptPackage } from './utils/export';
+import { exportPdf, exportPng, exportAiPackage } from './utils/export';
 import './styles/tokens.css';
 
 function App() {
@@ -20,9 +20,9 @@ function App() {
     const stage = (window as any).__konvaStage;
     if (stage) await exportPdf(stage, geometry, exportJson(), 'apartment-plan.pdf');
   };
-  const handleExportForGpt = async () => {
+  const handleExportForAi = async () => {
     const stage = (window as any).__konvaStage;
-    if (stage) await exportGptPackage(stage, geometry, exportJson());
+    if (stage) await exportAiPackage(stage, geometry, exportJson());
   };
 
   return (
@@ -30,7 +30,7 @@ function App() {
       <Toolbar
         onExportPng={handleExportPng}
         onExportPdf={handleExportPdf}
-        onExportForGpt={handleExportForGpt}
+        onExportForAi={handleExportForAi}
       />
       <Library />
       <div className="canvas-wrap">

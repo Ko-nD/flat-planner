@@ -171,20 +171,35 @@ export function buildMarkdown(data: ProjectData): string {
     }
   }
 
-  // Раздел для GPT — рекомендации
+  // Промпт для AI (любая мультимодальная LLM: Claude, GPT, Qwen-VL, Gemini, Llama-Vision...)
   lines.push('');
-  lines.push('## Запрос для GPT');
+  lines.push('## Промпт для AI-анализа');
+  lines.push('');
+  lines.push('Скопируй текст ниже и приложи файлы из этого пакета (ZIP).');
+  lines.push('Подходит для Claude, ChatGPT, Qwen, Gemini и других моделей с поддержкой изображений.');
   lines.push('');
   lines.push('```');
   lines.push('Проанализируй планировку квартиры по приложенным файлам:');
-  lines.push('- annotated-plan.png — план с мебелью и электрикой и подписями;');
-  lines.push('- plan.png — чистый план;');
-  lines.push('- apartment-project.json — машинный формат всех объектов с координатами в мм;');
+  lines.push('- plan.png — рендер плана со всеми объектами;');
+  lines.push('- project.json — машинный формат геометрии и расстановки (координаты в мм);');
   lines.push('- apartment-brief.md — текстовое описание (этот файл).');
   lines.push('');
   lines.push('Найди проблемы по эргономике, проходам, мебели, розеткам и свету.');
-  lines.push('Предложи улучшения. Верни изменения в формате JSON patch со списком');
-  lines.push('действий { action: "move|add|remove", object_id?, new_x?, new_y?, object?, reason }.');
+  lines.push('Предложи улучшения. Верни изменения СТРОГО в формате JSON-патча:');
+  lines.push('');
+  lines.push('{');
+  lines.push('  "version": "1.0",');
+  lines.push('  "ops": [');
+  lines.push('    { "op": "move_object", "id": "...", "x": 1500, "y": 2400, "reason": "..." },');
+  lines.push('    { "op": "add_object", "object": { "id": "...", "catalogId": "socket-2", "layer": "sockets", "x": ..., "y": ..., "rotation": 0, "width": 160, "depth": 80 }, "reason": "..." },');
+  lines.push('    { "op": "delete_object", "id": "...", "reason": "..." },');
+  lines.push('    { "op": "remove_opening", "id": "...", "reason": "..." }');
+  lines.push('  ]');
+  lines.push('}');
+  lines.push('');
+  lines.push('Поддерживаемые операции: add_object, update_object, move_object, delete_object,');
+  lines.push('add_room, update_room, replace_room_polygon, remove_room,');
+  lines.push('add_wall, replace_wall, remove_wall, add_opening, update_opening, remove_opening.');
   lines.push('Координаты — в миллиметрах от верхнего-левого угла квартиры.');
   lines.push('```');
 
@@ -264,34 +279,38 @@ export async function exportPdf(stage: any, geometry: any, data: ProjectData, na
   pdf.save(name);
 }
 
-// «Пакет для GPT» — ZIP-архив с уникальным именем по дате/времени.
+// «Пакет для AI» — ZIP-архив с уникальным именем по дате/времени.
+// Совместим с любой мультимодальной LLM: Claude, GPT-4o, Qwen, Gemini, Llama-Vision и т.п.
 // Внутри архива файлы имеют обычные имена.
-export async function exportGptPackage(stage: any, geometry: any, data: ProjectData) {
+export async function exportAiPackage(stage: any, geometry: any, data: ProjectData) {
   const { default: JSZip } = await import('jszip');
   const zip = new JSZip();
 
   // 1. project.json — машинный формат всей геометрии и расстановки (источник истины)
   zip.file('project.json', JSON.stringify(data, null, 2));
 
-  // 2. apartment-brief.md — текстовое описание для GPT
+  // 2. apartment-brief.md — человекочитаемое описание + готовый промпт
   zip.file('apartment-brief.md', buildMarkdown(data));
 
   // 3. plan.png — рендер плана целиком
   const png = renderFullPlanPng(stage, geometry, { pixelRatio: 2, targetWidth: 2400 });
-  // Превращаем data URL в Blob
   const pngBlob = await (await fetch(png)).blob();
   zip.file('plan.png', pngBlob);
 
   // 4. README.txt — короткая инструкция
   zip.file('README.txt', [
-    'Apartment planner export package',
+    'Flat Planner — экспорт-пакет для AI-анализа',
     '',
-    'Files:',
+    'Файлы:',
     '  project.json        — машинный формат: геометрия + объекты + слои',
-    '  apartment-brief.md  — человекочитаемое описание для ChatGPT',
+    '  apartment-brief.md  — описание + готовый промпт для AI',
     '  plan.png            — рендер плана',
     '',
-    'Чтобы вернуть JSON-патч в приложение — кнопка «⇩ GPT-патч».',
+    'Подходит для Claude, ChatGPT, Qwen, Gemini и других моделей с поддержкой изображений.',
+    'Скопируй промпт из apartment-brief.md (раздел «Промпт для AI-анализа») и приложи',
+    'все три файла в чат с моделью.',
+    '',
+    'Чтобы вернуть JSON-патч обратно в приложение — кнопка «⇩ AI-патч».',
     '',
     `Сформировано: ${new Date().toLocaleString('ru-RU')}`,
   ].join('\n'));
@@ -301,6 +320,9 @@ export async function exportGptPackage(stage: any, geometry: any, data: ProjectD
   const slug = (data.meta.name || 'apartment').toLowerCase().replace(/[^a-zа-я0-9]+/gi, '-').replace(/^-+|-+$/g, '') || 'apartment';
   downloadBlob(archiveBlob, `${slug}-${stamp}.zip`);
 }
+
+// Алиас для обратной совместимости (если где-то остались импорты старого имени)
+export const exportGptPackage = exportAiPackage;
 
 function formatTimestamp(d: Date): string {
   const p = (n: number) => String(n).padStart(2, '0');
