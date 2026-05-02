@@ -139,6 +139,12 @@ interface ProjectStore {
 
   addOpening: (op: { kind: 'door' | 'window'; wallId: string; offset: number; width?: number }) => string;
   removeOpening: (id: string) => void;
+
+  // Live-drag геометрии: вызывается при mousedown — пушит снапшот в past один раз;
+  // дальше Live-функции обновляют состояние без новых записей в историю.
+  beginGeometryEdit: () => void;
+  updateWallEndpointLive: (wallId: string, end: 'a' | 'b', point: { x: number; y: number }) => void;
+  updateRoomVertexLive: (roomId: string, vertexIdx: number, point: { x: number; y: number }) => void;
 }
 
 const newId = () => Math.random().toString(36).slice(2, 10);
@@ -467,6 +473,32 @@ export const useProject = create<ProjectStore>((set, get) => {
     removeOpening: (id) => set((s) => ({
       ...pushHistory(s),
       geometry: { ...s.geometry, openings: s.geometry.openings.filter((o) => o.id !== id) },
+    })),
+
+    beginGeometryEdit: () => set((s) => ({ ...pushHistory(s) })),
+    updateWallEndpointLive: (wallId, end, point) => set((s) => ({
+      geometry: {
+        ...s.geometry,
+        walls: s.geometry.walls.map((w) => w.id === wallId ? { ...w, [end]: point } : w),
+      },
+    })),
+    updateRoomVertexLive: (roomId, vertexIdx, point) => set((s) => ({
+      geometry: {
+        ...s.geometry,
+        rooms: s.geometry.rooms.map((r) => {
+          if (r.id !== roomId) return r;
+          const polygon = r.polygon.map((v, i) => i === vertexIdx ? point : v);
+          // Пересчитаем площадь сразу — UI и шапка комнаты обновятся в реальном времени
+          let s2 = 0;
+          for (let i = 0; i < polygon.length; i++) {
+            const p = polygon[i];
+            const q = polygon[(i + 1) % polygon.length];
+            s2 += p.x * q.y - q.x * p.y;
+          }
+          const area = +(Math.abs(s2) / 2 / 1_000_000).toFixed(2);
+          return { ...r, polygon, area };
+        }),
+      },
     })),
 
     undo: () => set((s) => {

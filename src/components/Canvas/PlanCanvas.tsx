@@ -9,6 +9,7 @@ import { Grid } from './Grid';
 import { ObjectShape } from './ObjectShape';
 import { DoorMarkers } from './DoorMarkers';
 import { RotateHandle } from './RotateHandle';
+import { GeometryHandles } from './GeometryHandles';
 import { findCatalog, isMarker } from '../../catalog/catalog';
 import { snap, pointInPolygon, nearestWall } from '../../utils/geometry';
 import { useCanvasKeys } from './useCanvasInput';
@@ -518,6 +519,11 @@ export function PlanCanvas() {
                 })}
             </Group>
           ))}
+        </Layer>
+
+        {/* Хэндлы для drag-редактирования геометрии (видны в select при выделении) */}
+        <Layer>
+          <GeometryHandles />
         </Layer>
 
         {/* Слой превью / измерения */}
