@@ -185,6 +185,8 @@ export function PlanCanvas() {
     const direction = e.evt.deltaY > 0 ? -1 : 1;
     const factor = 1.12;
     const newScale = Math.min(0.6, Math.max(0.005, oldScale * (direction > 0 ? factor : 1 / factor)));
+    // Если зум упёрся в clamp — не пересчитываем offset, иначе курсор «уезжает» без видимого зума
+    if (Math.abs(newScale - oldScale) < 1e-6) return;
     // Конвертация: вычисляем новый offset так, чтобы local-точка осталась под курсором
     const rad = (view.rotation * Math.PI) / 180;
     const cos = Math.cos(rad);
@@ -237,10 +239,13 @@ export function PlanCanvas() {
     if (button === 0 && tool === 'measure') {
       const w = snappedWorld();
       if (!w) return;
-      if (!measure) {
-        setMeasure({ a: w, b: w });
+      // 1-й клик: ставим первую точку (b следует за курсором, locked=false).
+      // 2-й клик: фиксируем вторую точку (locked=true) — линия больше не движется.
+      // 3-й клик (по уже locked): начинаем новое измерение от текущего курсора.
+      if (!measure || measure.locked) {
+        setMeasure({ a: w, b: w, locked: false });
       } else {
-        setMeasure({ a: measure.a, b: w });
+        setMeasure({ a: measure.a, b: w, locked: true });
       }
       return;
     }
@@ -387,9 +392,10 @@ export function PlanCanvas() {
     const w = snappedWorld();
     if (w) setCursor(w);
 
-    // Обновлять второй край измерительной линии при движении после клика
-    if (tool === 'measure' && measure && e.evt.buttons === 0 && w) {
-      setMeasure({ a: measure.a, b: w });
+    // Обновлять второй край измерительной линии при движении после клика —
+    // только пока линия НЕ зафиксирована (после второго клика игнорируем mousemove).
+    if (tool === 'measure' && measure && !measure.locked && e.evt.buttons === 0 && w) {
+      setMeasure({ a: measure.a, b: w, locked: false });
     }
   };
 
@@ -660,29 +666,44 @@ export function PlanCanvas() {
             const dy = measure.b.y - measure.a.y;
             const dist = Math.hypot(dx, dy);
             const mid = { x: (measure.a.x + measure.b.x) / 2, y: (measure.a.y + measure.b.y) / 2 };
+            const locked = !!measure.locked;
+            // Цвет «в процессе» — серый пунктир, «зафиксировано» — зелёный сплошной + точка-кружок
+            const stroke = locked ? '#0d8c43' : '#7a7a7a';
             return (
               <Group>
                 <Line
                   points={[measure.a.x, measure.a.y, measure.b.x, measure.b.y]}
-                  stroke="#0d8c43"
-                  strokeWidth={2.5}
+                  stroke={stroke}
+                  strokeWidth={locked ? 3 : 2}
                   strokeScaleEnabled={false}
-                  dash={[14, 6]}
+                  dash={locked ? undefined : [14, 6]}
                 />
-                <Circle x={measure.a.x} y={measure.a.y} radius={80} stroke="#0d8c43" strokeWidth={2} strokeScaleEnabled={false} />
-                <Circle x={measure.b.x} y={measure.b.y} radius={80} stroke="#0d8c43" strokeWidth={2} strokeScaleEnabled={false} />
-                <Text
+                <Circle x={measure.a.x} y={measure.a.y} radius={90} stroke={stroke} strokeWidth={locked ? 3 : 2} fill={locked ? '#fff' : undefined} strokeScaleEnabled={false} />
+                <Circle x={measure.b.x} y={measure.b.y} radius={90} stroke={stroke} strokeWidth={locked ? 3 : 2} fill={locked ? '#fff' : undefined} strokeScaleEnabled={false} />
+                {locked && <Text
                   x={mid.x}
-                  y={mid.y - 250}
+                  y={mid.y - 350}
                   text={fmtSize(dist)}
-                  fontSize={170}
+                  fontSize={200}
                   fontFamily="Inter, system-ui"
-                  fontStyle="600"
+                  fontStyle="700"
                   fill="#0d8c43"
                   align="center"
                   width={3000}
                   offsetX={1500}
-                />
+                />}
+                {!locked && <Text
+                  x={mid.x}
+                  y={mid.y - 280}
+                  text={fmtSize(dist) + ' · клик чтобы зафиксировать'}
+                  fontSize={130}
+                  fontFamily="Inter, system-ui"
+                  fontStyle="600"
+                  fill="#5a5a5a"
+                  align="center"
+                  width={4500}
+                  offsetX={2250}
+                />}
               </Group>
             );
           })()}

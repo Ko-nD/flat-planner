@@ -13,6 +13,7 @@ import { buildBlankPlan } from '../../templates/blankPlan';
 import { BtiImportDialog } from './BtiImportDialog';
 import { buildShareUrl } from '../../utils/share';
 import { DropdownMenu } from './DropdownMenu';
+import { GridSettings } from './GridSettings';
 import { exportJsonFile, exportMarkdown } from '../../utils/export';
 import { polygonCentroid } from '../../utils/geometry';
 import type { ProjectData } from '../../types';
@@ -28,10 +29,7 @@ interface Props {
 export function Toolbar({ onExportPng, onExportPdf, onExportForAi, isMobile = false }: Props) {
   const tool = useProject((s) => s.tool);
   const setTool = useProject((s) => s.setTool);
-  const showGrid = useProject((s) => s.showGrid);
-  const setShowGrid = useProject((s) => s.setShowGrid);
-  const snapMm = useProject((s) => s.snapMm);
-  const setSnapMm = useProject((s) => s.setSnapMm);
+  // showGrid + snapMm управляются через <GridSettings />, см. tb-group ниже.
   const view = useProject((s) => s.view);
   const setView = useProject((s) => s.setView);
   const exportJson = useProject((s) => s.exportJson);
@@ -214,16 +212,7 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi, isMobile = fa
       )}
 
       <div className="tb-group">
-        <button className="btn btn--small" aria-pressed={showGrid} onClick={() => setShowGrid(!showGrid)} title="Сетка (G)">
-          # Сетка
-        </button>
-        <select className="btn btn--small" value={snapMm} onChange={(e) => setSnapMm(parseInt(e.target.value, 10))} title="Привязка к шагу">
-          <option value={0}>Без привязки</option>
-          <option value={10}>1 см</option>
-          <option value={50}>5 см</option>
-          <option value={100}>10 см</option>
-          <option value={200}>20 см</option>
-        </select>
+        <GridSettings />
       </div>
 
       <div className="tb-group">
@@ -361,7 +350,7 @@ function HelpModal({ onClose }: { onClose: () => void }) {
             <div><span>Space + drag</span><span className="kbd">Пан</span></div>
             <div><span>Средняя кнопка</span><span className="kbd">Пан</span></div>
             <div><span>Выделение</span><span className="kbd">V</span></div>
-            <div><span>Линейка</span><span className="kbd">M</span></div>
+            <div><span>Линейка (1-й клик — начать, 2-й — зафиксировать, 3-й — новая)</span><span className="kbd">M</span></div>
             <div><span>Сетка вкл/выкл</span><span className="kbd">G</span></div>
             <div><span>Удалить выделенное (объекты, стены, комнаты)</span><span className="kbd">Del</span></div>
             <div><span>Дублировать</span><span className="kbd">Ctrl+D</span></div>

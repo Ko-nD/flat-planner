@@ -29,6 +29,8 @@ interface ViewState {
 interface MeasureLine {
   a: { x: number; y: number };
   b: { x: number; y: number };
+  // true после второго клика — линия зафиксирована, mousemove её не двигает.
+  locked?: boolean;
 }
 
 interface HistorySnapshot {
