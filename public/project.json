@@ -1,0 +1,113 @@
+{
+  "version": "1.0",
+  "meta": {
+    "name": "Моя квартира — 3 комнаты",
+    "totalArea": 60.5,
+    "livingArea": 44.8,
+    "auxArea": 14.4,
+    "notes": "План по экспликации БТИ. Размеры в мм. Источник истины — этот файл. После правки нажми «↻ Шаблон» в Toolbar или удали flat-planner-project-v2 из localStorage и обнови страницу.",
+    "updatedAt": 0
+  },
+  "geometry": {
+    "bounds": { "width": 6130, "height": 10820 },
+    "rooms": [
+      { "id": "r1",      "name": "Спальня 1", "area": 14.9, "kind": "living",
+        "polygon": [{"x":0,"y":0},{"x":3070,"y":0},{"x":3070,"y":4860},{"x":0,"y":4860}] },
+      { "id": "r2",      "name": "Спальня 2", "area": 14.9, "kind": "living",
+        "polygon": [{"x":3070,"y":0},{"x":6130,"y":0},{"x":6130,"y":4860},{"x":3070,"y":4860}] },
+      { "id": "r3",      "name": "Гостиная",  "area": 15.0, "kind": "living",
+        "polygon": [{"x":3070,"y":4860},{"x":6130,"y":4860},{"x":6130,"y":9720},{"x":3070,"y":9720}] },
+
+      { "id": "hall",    "name": "Коридор",   "area": 4.4,  "kind": "hall",
+        "polygon": [
+          {"x":0,    "y":4860},
+          {"x":3070, "y":4860},
+          {"x":3070, "y":7500},
+          {"x":2300, "y":7500},
+          {"x":2300, "y":6310},
+          {"x":1450, "y":6220},
+          {"x":0,    "y":6070}
+        ] },
+
+      { "id": "bath",    "name": "Ванная",    "area": 2.0,  "kind": "bath",
+        "polygon": [
+          {"x":0,    "y":6070},
+          {"x":1450, "y":6220},
+          {"x":1450, "y":7500},
+          {"x":0,    "y":7500}
+        ] },
+
+      { "id": "wc",      "name": "Туалет",    "area": 0.9,  "kind": "wc",
+        "polygon": [
+          {"x":1450, "y":6220},
+          {"x":2300, "y":6310},
+          {"x":2300, "y":7500},
+          {"x":1450, "y":7500}
+        ] },
+
+      { "id": "kitchen", "name": "Кухня",     "area": 7.1,  "kind": "kitchen",
+        "polygon": [
+          {"x":0,    "y":7500},
+          {"x":3070, "y":7500},
+          {"x":3070, "y":9720},
+          {"x":0,    "y":9720}
+        ] }
+    ],
+    "balcony": {
+      "name": "Балкон",
+      "area": 4.3,
+      "polygon": [{"x":100,"y":9720},{"x":6030,"y":9720},{"x":5430,"y":10820},{"x":700,"y":10820}]
+    },
+    "walls": [
+      { "id": "ext-n",         "a": {"x":0,"y":0},       "b": {"x":6130,"y":0},    "thickness": 250, "external": true },
+      { "id": "ext-e",         "a": {"x":6130,"y":0},    "b": {"x":6130,"y":9720}, "thickness": 250, "external": true },
+      { "id": "ext-s-kitchen", "a": {"x":0,"y":9720},    "b": {"x":3070,"y":9720}, "thickness": 250, "external": true },
+      { "id": "ext-s-r3",      "a": {"x":3070,"y":9720}, "b": {"x":6130,"y":9720}, "thickness": 250, "external": true },
+      { "id": "ext-w",         "a": {"x":0,"y":9720},    "b": {"x":0,"y":0},       "thickness": 250, "external": true },
+
+      { "id": "w-r1-r2",      "a": {"x":3070,"y":0},    "b": {"x":3070,"y":4860}, "thickness": 100 },
+      { "id": "w-top-bottom", "a": {"x":0,"y":4860},    "b": {"x":6130,"y":4860}, "thickness": 100 },
+      { "id": "w-left-r3",    "a": {"x":3070,"y":4860}, "b": {"x":3070,"y":9720}, "thickness": 100 },
+
+      { "id": "w-bath-front", "a": {"x":0,    "y":6070}, "b": {"x":1450, "y":6220}, "thickness": 100 },
+      { "id": "w-bath-wc",    "a": {"x":1450, "y":6220}, "b": {"x":1450, "y":7500}, "thickness": 100 },
+      { "id": "w-wc-front",   "a": {"x":1450, "y":6220}, "b": {"x":2300, "y":6310}, "thickness": 100 },
+      { "id": "w-san-right",  "a": {"x":2300, "y":6310}, "b": {"x":2300, "y":7500}, "thickness": 100 },
+      { "id": "w-san-bottom", "a": {"x":0,    "y":7500}, "b": {"x":2300, "y":7500}, "thickness": 100 }
+    ],
+    "openings": [
+      { "id": "win-r1", "kind": "window", "wallId": "ext-n", "offset": 1500, "width": 1500, "sillHeight": 850, "height": 1500, "label": "Окно (Сп.1)" },
+      { "id": "win-r2", "kind": "window", "wallId": "ext-n", "offset": 4500, "width": 1500, "sillHeight": 850, "height": 1500, "label": "Окно (Сп.2)" },
+
+      { "id": "door-balcony-kitchen", "kind": "door",   "wallId": "ext-s-kitchen", "offset": 1100, "width": 700, "swing": "left",  "hingeSide": "in", "label": "Балкон (кухня)" },
+      { "id": "win-kitchen",          "kind": "window", "wallId": "ext-s-kitchen", "offset": 2100, "width": 850, "sillHeight": 850, "height": 1400, "label": "Окно (Кухня)" },
+
+      { "id": "door-balcony-r3", "kind": "door",   "wallId": "ext-s-r3", "offset": 700,  "width": 750, "swing": "right", "hingeSide": "in", "label": "Балкон (гостиная)" },
+      { "id": "win-r3",          "kind": "window", "wallId": "ext-s-r3", "offset": 1800, "width": 950, "sillHeight": 850, "height": 1400, "label": "Окно (Гостиная)" },
+
+      { "id": "door-entry", "kind": "door", "wallId": "ext-w", "offset": 4305, "width": 900, "swing": "right", "hingeSide": "in",  "label": "Входная дверь" },
+
+      { "id": "door-r1", "kind": "door", "wallId": "w-top-bottom", "offset": 1500, "width": 800, "swing": "left",  "hingeSide": "out", "label": "В Сп.1" },
+      { "id": "door-r2", "kind": "door", "wallId": "w-r1-r2",      "offset": 2400, "width": 800, "swing": "right", "hingeSide": "out", "label": "В Сп.2" },
+      { "id": "door-r3", "kind": "door", "wallId": "w-left-r3",    "offset": 600,  "width": 800, "swing": "left",  "hingeSide": "out", "label": "В Гостиную" },
+
+      { "id": "door-bath", "kind": "door", "wallId": "w-bath-front", "offset": 700, "width": 600, "swing": "left",  "hingeSide": "out", "label": "В ванную" },
+      { "id": "door-wc",   "kind": "door", "wallId": "w-wc-front",   "offset": 350, "width": 450, "swing": "right", "hingeSide": "out", "label": "В туалет" }
+    ]
+  },
+  "objects": [],
+  "layerVisibility": {
+    "walls": true,
+    "doors": true,
+    "windows": true,
+    "labels": true,
+    "furniture": true,
+    "appliances": true,
+    "sockets": true,
+    "switches": true,
+    "lights": true,
+    "data": true,
+    "plumbing": true,
+    "notes": true
+  }
+}

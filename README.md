@@ -1,0 +1,192 @@
+# Flat Planner
+
+Веб-планировщик квартиры на React + Konva. Делает то, что нужно для **реального ремонта**: точная геометрия по БТИ, расстановка мебели/техники/сантехники, **полный электрический проект** (розетки, выключатели, свет, слаботочка), экспорт для строителей и для GPT.
+
+> Простой, локальный, бесплатный, без регистрации. Всё в браузере. Геометрия и расстановка живут в одном `project.json`.
+
+---
+
+## ✨ Что внутри
+
+- 🏠 **Точная геометрия** — стены, скосы, ниши, окна, двери с правильными дугами открывания на любых стенах (включая диагональные)
+- 🛋 **265+ позиций каталога** — мебель, техника (Bosch, Tion и др.), сантехника, светильники, кондиционеры, бризеры
+- ⚡ **Электрика** — розетки 220V и 32A, IP44 для влажных зон, выключатели (одно-/двух-/трёхклавишные, проходные, диммеры), свет (потолочные/споты/трек/LED/бра/торшеры/IP44 для ванной), слаботочка (RJ45, ТВ, антенна, HDMI)
+- 🧩 **Свои предметы** — конструктор форм: прямоугольник, круг, **L-форма** (4 ориентации с настраиваемыми ногами), **произвольный полигон**. Сохраняются в localStorage, экспортируются/импортируются JSON
+- 🤖 **GPT-патчи** — отправляешь архив (план + JSON + Markdown-описание) в ChatGPT, он возвращает JSON-патч с правками (move/add/delete/replace), приложение показывает diff и применяет одним кликом
+- 📐 **Линейка**, привязка к сетке (1/5/10/20 см), поворот с visual handle на канвасе (snap 15°, Shift — свободно)
+- 🧱 **Wall-mounted** — ТВ/кондиционеры/бризеры/полотенцесушители при размещении автоматически прилипают к ближайшей стене
+- 🖼 **Экспорт**: ZIP с timestamp, PNG, PDF (A3 ландшафт), JSON, Markdown с таблицами по комнатам
+- 👁 **Слои**: стены, двери, окна, подписи, мебель, техника, сантехника, розетки, выключатели, свет, слаботочка, заметки — каждый можно скрыть отдельно
+- ↻ **Поворот всего плана** на 90°/180°/270°
+- 🇷🇺 Размеры внутри в **миллиметрах** (стандарт стройки), в UI — в **см / м** (понятно)
+
+## 📸 Скриншоты
+
+Положи свои в `docs/screenshots/` и сошлись на них здесь:
+
+```md
+![Главный вид плана](docs/screenshots/main.png)
+![Узел санузла со скошенными дверями](docs/screenshots/sanitary-zoom.png)
+![Диалог GPT-патча с превью diff](docs/screenshots/gpt-patch.png)
+![Конструктор форм для своего предмета](docs/screenshots/custom-item.png)
+```
+
+Скрины можно быстро получить через кнопку **`📤 Для GPT`** — внутри ZIP лежит `plan.png`. Или просто `Win+Shift+S`.
+
+## 🚀 Быстрый старт
+
+```bash
+git clone https://github.com/<your-username>/flat-planner.git
+cd flat-planner
+npm install
+npm run dev
+```
+
+Откроется http://localhost:5180
+
+## 📋 Workflow
+
+1. **Загрузи свой план** — открой `public/project.json` в любом редакторе и подставь свою геометрию (см. формат ниже). Или нажми **«↑ Загрузить»** в UI и подгрузи готовый JSON.
+2. **Расставь мебель** — клик по предмету в каталоге → клик на план. Можно сразу применять **готовые шаблоны** электрики (кровать с розетками и бра, ТВ-зона, кухонный блок и т.д.).
+3. **Получи правки от GPT** — нажми **«📤 Для GPT»**, кинь ZIP в ChatGPT с запросом «найди ошибки в эргономике и розетках». Получи JSON-патч.
+4. **Примени патч** — **«⇩ GPT-патч»** → вставь JSON → увидишь превью изменений → **Apply**.
+5. **Отдай строителю** — экспорт PDF или Markdown со всеми координатами в см.
+
+## 📁 Формат `project.json`
+
+```json
+{
+  "version": "1.0",
+  "meta": { "name": "Моя квартира", "totalArea": 60.5, "livingArea": 44.8, "auxArea": 14.4 },
+  "geometry": {
+    "bounds": { "width": 6130, "height": 10820 },
+    "rooms": [
+      { "id": "r1", "name": "Спальня 1", "kind": "living", "area": 14.9,
+        "polygon": [{"x":0,"y":0},{"x":3070,"y":0},{"x":3070,"y":4860},{"x":0,"y":4860}] }
+    ],
+    "walls": [
+      { "id": "ext-n", "a": {"x":0,"y":0}, "b": {"x":6130,"y":0}, "thickness": 250, "external": true }
+    ],
+    "openings": [
+      { "id": "win-r1", "kind": "window", "wallId": "ext-n",
+        "offset": 1500, "width": 1500, "sillHeight": 850, "height": 1500 }
+    ]
+  },
+  "objects": [
+    { "id": "abc", "catalogId": "bed-160", "layer": "furniture",
+      "x": 1500, "y": 2400, "rotation": 0, "width": 1600, "depth": 2000 }
+  ],
+  "layerVisibility": { "walls": true, "doors": true }
+}
+```
+
+Все размеры — в **миллиметрах**. Координаты от внутреннего верхнего-левого угла квартиры.
+
+## 🤖 Формат GPT-патча
+
+```json
+{
+  "version": "1.0",
+  "ops": [
+    { "op": "move_object", "id": "abc", "x": 1800, "y": 2400, "reason": "перенести кровать к стене" },
+    { "op": "add_object", "object": {
+      "id": "new1", "catalogId": "socket-2", "layer": "sockets",
+      "x": 1700, "y": 2200, "rotation": 0, "width": 160, "depth": 80, "mountHeight": 300
+    } },
+    { "op": "remove_opening", "id": "door-balcony-kitchen" },
+    { "op": "replace_room_polygon", "id": "bath", "polygon": [] },
+    { "op": "remove_wall", "id": "w-old" }
+  ]
+}
+```
+
+Поддерживаемые операции:
+
+- **Объекты**: `add_object` · `update_object` · `move_object` · `delete_object`
+- **Помещения**: `add_room` · `update_room` · `replace_room_polygon` · `remove_room`
+- **Стены**: `add_wall` · `replace_wall` · `remove_wall` (заодно убирает все openings на этой стене)
+- **Проёмы**: `add_opening` · `update_opening` · `remove_opening`
+
+Каждая операция принимает опциональное поле `reason` — оно показывается в превью. Сломанные операции пропускаются при Apply, успешные — применяются.
+
+Готовый промпт для ChatGPT лежит в `apartment-brief.md` внутри ZIP-пакета — просто перешли пакет и попроси «верни JSON-патч».
+
+## ⌨️ Горячие клавиши
+
+| Клавиша | Действие |
+|---|---|
+| Колесо мыши | Зум |
+| Space + drag, средняя кнопка | Пан |
+| `V` / `H` / `M` | Выбор / Пан / Линейка |
+| `G` | Сетка вкл/выкл |
+| `R` / `Shift+R` | Поворот ±15° |
+| `Del` | Удалить выделенное |
+| `Ctrl+D` | Дублировать |
+| `Esc` | Снять выделение / выйти из placement |
+| `Shift` при клике-размещении | Не выходить из режима — ставить много подряд |
+
+## 🛠 Стек
+
+- React 19 + TypeScript + Vite
+- [Konva](https://konvajs.org) (`react-konva`) для канваса
+- [Zustand](https://zustand.docs.pmnd.rs/) для состояния
+- [JSZip](https://stuk.github.io/jszip/) для пакета «Для GPT»
+- [jsPDF](https://github.com/parallax/jsPDF) + html2canvas для PDF
+
+## 🔧 Разработка
+
+```bash
+npm run dev      # дев-сервер на 5180 с HMR
+npm run build    # production build
+npm run preview  # просмотр прод-версии
+```
+
+Структура:
+
+```
+src/
+├── data/apartment.ts          # fallback-импорт public/project.json
+├── catalog/
+│   ├── catalog.ts             # 265+ позиций каталога
+│   └── templates.ts           # готовые шаблоны электрики
+├── store/projectStore.ts      # zustand: state + persistence + bootstrap fetch
+├── utils/
+│   ├── geometry.ts            # nearestWall, openingSegment, polygonArea...
+│   ├── format.ts              # mm ↔ см ↔ м, парсинг ввода
+│   ├── patch.ts               # GPT-патч: parse/preview/apply
+│   └── export.ts              # PNG / PDF / Markdown / ZIP
+├── components/
+│   ├── Canvas/                # PlanCanvas, Walls, Openings, Rooms, ObjectShape, RotateHandle...
+│   └── Layout/                # Toolbar, Library, LayersPanel, Properties, Statusbar, PatchDialog
+└── types/index.ts             # все типы
+```
+
+`public/project.json` — единственный источник истины для геометрии. После правки — кнопка **«↻ Шаблон»** или `localStorage.removeItem('flat-planner-project-v2')` + reload.
+
+## 🧭 Roadmap
+
+- [ ] Кнопка «Новый проект» с шаблонами квартир (студия / 1-2-3 комн / blank)
+- [ ] Импорт скана БТИ как фоновое изображение для обведения
+- [ ] Wall editor в UI (drag вершин, добавить/удалить стену)
+- [ ] Mobile read-only режим
+- [ ] EN-локализация
+- [ ] Shareable URL (project в hash)
+- [ ] Tutorial overlay при первом заходе
+- [ ] CI: автодеплой на GitHub Pages
+
+## 🤝 Contributing
+
+PR-ы приветствуются. Перед коммитом проверь:
+
+```bash
+npx tsc --noEmit
+npm run build
+```
+
+## 📝 License
+
+MIT — см. [LICENSE](LICENSE)
+
+---
+
+Сделано для своих ремонтов и проектов перепланировки. Если пригодилось — поставь ⭐ и форкни под свою квартиру.

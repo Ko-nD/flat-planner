@@ -1,0 +1,35 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Claude Code локальные настройки запуска (не нужны в репо)
+.claude/
+
+# Тестовый/локальный экспорт
+*-plan.png
+*-plan.pdf
+apartment-*.json
+apartment-brief.md
+моя-квартира-*.zip
+
