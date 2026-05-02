@@ -549,19 +549,41 @@ useProject.subscribe((s, prev) => {
 });
 
 // Загрузка шаблона из public/project.json при старте.
-// Если localStorage уже содержит проект — шаблон используется только как «исходник для Reset».
+// Приоритет: hash в URL (?p=...) → localStorage → public/project.json → встроенный fallback.
 export async function bootstrapTemplate() {
+  // 1) Шар-ссылка в hash имеет наивысший приоритет
+  let loadedFromHash = false;
+  try {
+    const { tryLoadFromHash, clearShareHash } = await import('../utils/share');
+    const fromHash = await tryLoadFromHash();
+    if (fromHash) {
+      useProject.getState().loadJson(fromHash);
+      // Принудительно сохраняем сейчас же — иначе loadTemplate ниже сочтёт LS пустым
+      // и перезапишет состояние шаблоном.
+      useProject.getState().saveLocal();
+      loadedFromHash = true;
+      // Очищаем hash, чтобы автосохранение и реклоад работали корректно
+      clearShareHash();
+    }
+  } catch {}
+
+  // 2) Грузим эталонный шаблон (только как «эталон для Reset» — не перезаписывает
+  //    состояние, если оно уже выставлено из hash или localStorage).
   try {
     const res = await fetch(TEMPLATE_URL, { cache: 'no-cache' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = (await res.json()) as ProjectData;
     if (!data.geometry || !data.meta) throw new Error('Неверный формат project.json');
-    useProject.getState().loadTemplate(data);
+    if (loadedFromHash) {
+      useProject.setState({ template: data, templateLoaded: true, templateError: null });
+    } else {
+      useProject.getState().loadTemplate(data);
+    }
   } catch (e: any) {
     useProject.setState({ templateError: e?.message ?? 'Не удалось загрузить project.json' });
-    // используем встроенный fallback (FALLBACK_TEMPLATE)
-    useProject.getState().loadTemplate(FALLBACK_TEMPLATE);
+    if (!loadedFromHash) useProject.getState().loadTemplate(FALLBACK_TEMPLATE);
   }
+  return loadedFromHash;
 }
 
 export const newObjectId = newId;

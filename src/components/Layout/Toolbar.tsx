@@ -11,6 +11,7 @@ import {
 } from '../../templates/userFlatTemplates';
 import { buildBlankPlan } from '../../templates/blankPlan';
 import { BtiImportDialog } from './BtiImportDialog';
+import { buildShareUrl } from '../../utils/share';
 import { exportJsonFile, exportMarkdown } from '../../utils/export';
 import { polygonCentroid } from '../../utils/geometry';
 import type { ProjectData } from '../../types';
@@ -49,6 +50,23 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
   const [showPatch, setShowPatch] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showBti, setShowBti] = useState(false);
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+
+  const handleShare = async () => {
+    try {
+      const url = await buildShareUrl(exportJson());
+      if (url.length > 12000) {
+        if (!confirm(`Длина ссылки ~${Math.round(url.length / 1024)} КБ. Некоторые мессенджеры обрежут URL такой длины. Всё равно скопировать?`)) return;
+      }
+      await navigator.clipboard.writeText(url);
+      setShareStatus('copied');
+      setTimeout(() => setShareStatus('idle'), 2000);
+    } catch (e: any) {
+      console.error('Share failed', e);
+      setShareStatus('error');
+      setTimeout(() => setShareStatus('idle'), 2500);
+    }
+  };
 
   // Fit с учётом поворота вида (rotation в градусах, кратно 90°)
   const fitView = (rotation: number) => {
@@ -217,6 +235,13 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi }: Props) {
         <button className="btn btn--small" onClick={() => exportMarkdown(exportJson(), `${slug(meta.name)}.md`)} title="Скачать Markdown-описание">MD</button>
         <button className="btn btn--small" onClick={onExportPdf} title="Скачать PDF (A3, ландшафт)">PDF</button>
         <button className="btn btn--small" onClick={() => fileInputRef.current?.click()} title="Загрузить ранее сохранённый JSON-проект">↑ Загрузить</button>
+        <button
+          className="btn btn--small"
+          onClick={handleShare}
+          title="Скопировать ссылку с проектом — текущее состояние закодировано в URL (gzip + base64). Открыв ссылку, любой увидит твой план без файлов."
+        >
+          {shareStatus === 'copied' ? '✓ Ссылка в буфере' : shareStatus === 'error' ? '⚠ Ошибка' : '🔗 Поделиться'}
+        </button>
         <input ref={fileInputRef} type="file" accept="application/json,.json" style={{ display: 'none' }}
           onChange={(e) => {
             const f = e.target.files?.[0];
