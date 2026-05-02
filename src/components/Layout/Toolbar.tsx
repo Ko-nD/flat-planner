@@ -334,6 +334,18 @@ function HelpModal({ onClose }: { onClose: () => void }) {
           <div className="muted" style={{ marginTop: 8 }}>
             <strong>Где хранятся чертежи?</strong> В localStorage браузера. Автосохранение каждые 1.5 секунды (см. индикатор «✓ Сохранено» в нижнем статус-баре). Чтобы перенести план на другое устройство — кнопка <strong>JSON</strong> в тулбаре скачает снапшот.
           </div>
+          <div className="muted" style={{ marginTop: 8 }}>
+            <button
+              className="btn btn--small"
+              onClick={() => {
+                try { localStorage.removeItem('flat-tutorial-seen-v1'); } catch {}
+                location.reload();
+              }}
+              title="Сбросить флаг и заново показать обучение при перезагрузке"
+            >
+              ↻ Показать обучение снова
+            </button>
+          </div>
         </div>
         <div className="modal-f">
           <button className="btn" onClick={onClose}>Закрыть</button>

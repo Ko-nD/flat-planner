@@ -114,6 +114,19 @@ input, textarea, select {
 }
 .mobile-banner__close:hover { background: rgba(255, 255, 255, 0.4); }
 
+/* === Tutorial overlay === */
+.tutorial-dots { display: flex; gap: 6px; }
+.tutorial-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+.tutorial-dot:hover { background: var(--ink-mute); }
+.tutorial-dot--active { background: var(--accent); transform: scale(1.4); }
+
 .toolbar { grid-area: toolbar; }
 .library { grid-area: library; }
 .canvas-wrap { grid-area: canvas; }

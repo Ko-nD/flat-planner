@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Toolbar } from './components/Layout/Toolbar';
 import { Library } from './components/Layout/Library';
 import { SidePanels } from './components/Layout/SidePanels';
 import { Statusbar } from './components/Layout/Statusbar';
 import { PlanCanvas } from './components/Canvas/PlanCanvas';
 import { MobileBanner } from './components/Layout/MobileBanner';
+import { TutorialOverlay, hasSeenTutorial } from './components/Layout/TutorialOverlay';
 import { useProject } from './store/projectStore';
 import { useIsMobile } from './utils/useIsMobile';
 import { exportPdf, exportPng, exportAiPackage } from './utils/export';
@@ -13,6 +15,9 @@ function App() {
   const exportJson = useProject((s) => s.exportJson);
   const geometry = useProject((s) => s.geometry);
   const isMobile = useIsMobile();
+  // Туториал показываем только на десктопе и только при первом заходе. На мобильных
+  // он бесполезен (там и так read-only). Кнопка «?» внизу диалога даёт «Пропустить».
+  const [showTutorial, setShowTutorial] = useState<boolean>(() => !isMobile && !hasSeenTutorial());
 
   const handleExportPng = () => {
     const stage = (window as any).__konvaStage;
@@ -46,6 +51,7 @@ function App() {
         </div>
       )}
       <Statusbar />
+      {showTutorial && <TutorialOverlay onClose={() => setShowTutorial(false)} />}
     </div>
   );
 }
