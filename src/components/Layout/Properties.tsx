@@ -11,6 +11,10 @@ function NumInput({ value, onChange, suffix }: { value: number; onChange: (v: nu
   return (
     <div style={{ position: 'relative' }}>
       <input
+        // Перемонтируем input при каждом изменении value — иначе defaultValue
+        // не обновляется при переключении на другой объект, и пользователь видит
+        // старое число вместо актуального
+        key={display}
         type="number"
         defaultValue={display}
         onBlur={(e) => {
@@ -158,9 +162,11 @@ export function Properties() {
         <div className="props-row">
           <label>Название</label>
           <input
+            key={single.id}
             type="text"
             defaultValue={single.label ?? cat?.name ?? ''}
             onBlur={(e) => updateObject(single.id, { label: e.target.value || undefined })}
+            onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
           />
         </div>
         <div className="props-row">
@@ -186,7 +192,8 @@ export function Properties() {
               onClick={() => updateObject(single.id, { rotation: ((single.rotation - 15) + 360) % 360 })}
               title="Повернуть −15°">−15°</button>
             <input
-              key={single.id}
+              // Перемонтаж при смене rotation — иначе кнопки ±15° не обновляют поле
+              key={`${single.id}-${Math.round(single.rotation)}`}
               type="number"
               defaultValue={Math.round(single.rotation)}
               onBlur={(e) => updateObject(single.id, { rotation: ((parseFloat(e.target.value) || 0) % 360 + 360) % 360 })}
@@ -226,6 +233,7 @@ export function Properties() {
         <div className="props-row">
           <label>Заметка</label>
           <textarea
+            key={single.id}
             defaultValue={single.notes ?? ''}
             placeholder="Например: «провод 3×2.5», «диммируемый», «розетка скрытая за ТВ»…"
             onBlur={(e) => updateObject(single.id, { notes: e.target.value || undefined })}
@@ -287,6 +295,7 @@ function OpeningEditor({ opening, onUpdate, onRemove }: {
         <div className="props-row">
           <label>Подпись</label>
           <input
+            key={opening.id}
             type="text"
             defaultValue={opening.label ?? ''}
             placeholder={isDoor ? 'Входная' : 'Окно (Спальня)'}

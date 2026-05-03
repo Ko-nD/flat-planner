@@ -43,7 +43,7 @@ export function Statusbar() {
       <span className="sep">·</span>
       <span>Инструмент: <strong>
         {tool === 'select' && 'Выбор'}
-        {tool === 'pan' && 'Пан'}
+        {tool === 'pan' && 'Рука'}
         {tool === 'measure' && 'Линейка'}
         {tool === 'place' && `Размещение${placeCatalogId ? ` — ${placeCatalogId}` : ''}`}
         {tool === 'wall-draw' && '🧱 Стена'}

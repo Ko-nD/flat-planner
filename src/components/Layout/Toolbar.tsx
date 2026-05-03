@@ -166,8 +166,8 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi, isMobile = fa
             ▢ Выбор
           </button>
         )}
-        <button className="btn btn--small" aria-pressed={tool === 'pan'} onClick={() => setTool('pan')} title="Панорамирование (H, или Space+drag)">
-          ✋ Пан
+        <button className="btn btn--small" aria-pressed={tool === 'pan'} onClick={() => setTool('pan')} title="Двигать вид: тащи холст рукой. Также — Space + drag или средняя кнопка мыши.">
+          ✋ Рука
         </button>
         <button className="btn btn--small" aria-pressed={tool === 'measure'} onClick={() => setTool(tool === 'measure' ? 'select' : 'measure')} title="Линейка (M)">
           📏 Линейка
@@ -324,8 +324,8 @@ function HelpModal({ onClose }: { onClose: () => void }) {
         <div className="modal-b">
           <div className="help-grid">
             <div><span>Колесо мыши</span><span className="kbd">Зум</span></div>
-            <div><span>Space + drag</span><span className="kbd">Пан</span></div>
-            <div><span>Средняя кнопка</span><span className="kbd">Пан</span></div>
+            <div><span>Space + drag</span><span className="kbd">Рука</span></div>
+            <div><span>Средняя кнопка</span><span className="kbd">Рука</span></div>
             <div><span>Выделение</span><span className="kbd">V</span></div>
             <div><span>Линейка (1-й клик — начать, 2-й — зафиксировать, 3-й — новая)</span><span className="kbd">M</span></div>
             <div><span>Сетка вкл/выкл</span><span className="kbd">G</span></div>

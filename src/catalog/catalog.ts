@@ -372,9 +372,10 @@ const LIGHTS: CatalogItem[] = [
   { id: 'wall-reading',      layer: 'lights', category: 'Бра',     name: 'Настенный для чтения', width: 200,  depth: 350, symbol: 'sconce', mountHeight: 1500, wallMounted: true },
 
   // === Напольные / настольные ===
-  { id: 'floor-lamp',        layer: 'lights', category: 'Напольные', name: 'Торшер',             width: 400,  depth: 400, symbol: 'circle' },
-  { id: 'floor-arc',         layer: 'lights', category: 'Напольные', name: 'Дуговой торшер',     width: 1500, depth: 400, symbol: 'rect' },
-  { id: 'floor-tripod',      layer: 'lights', category: 'Напольные', name: 'Торшер на треноге',  width: 600,  depth: 600, symbol: 'circle' },
+  { id: 'floor-lamp',        layer: 'lights', category: 'Напольные', name: 'Торшер',             width: 400,  depth: 400, symbol: 'circle', hint: 'Стандартный торшер с круглым основанием' },
+  { id: 'floor-arc',         layer: 'lights', category: 'Напольные', name: 'Дуговой торшер',     width: 1500, depth: 400, symbol: 'rect', hint: 'Длинная дуга — лампа выносится в сторону от основания' },
+  { id: 'floor-tripod',      layer: 'lights', category: 'Напольные', name: 'Торшер на треноге',  width: 600,  depth: 600, symbol: 'circle', hint: 'Тренога — устойчивый широкий торшер' },
+  { id: 'floor-lamp-table',  layer: 'lights', category: 'Напольные', name: 'Торшер-тумба',       width: 500,  depth: 500, symbol: 'rect',   hint: 'Торшер с встроенной столешницей-тумбочкой (IKEA Lauters и подобные)' },
   { id: 'desk-lamp',         layer: 'lights', category: 'Настольные', name: 'Настольная лампа',  width: 200,  depth: 200, symbol: 'circle' },
   { id: 'desk-lamp-arch',    layer: 'lights', category: 'Настольные', name: 'Архитектурная лампа', width: 300, depth: 300, symbol: 'circle' },
   { id: 'reading-light',     layer: 'lights', category: 'Настольные', name: 'Лампа для чтения',  width: 150,  depth: 150, symbol: 'circle' },

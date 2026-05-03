@@ -756,8 +756,13 @@ export function ObjectShape({ obj, catalog, selected, hovered, showLabel }: Prop
     return undefined;
   }, [selected, hovered]);
 
-  // Маркер
-  if (isMarker(layer)) {
+  // Маркер — только если это действительно «иконка» по символу.
+  // Торшеры и торшер-тумба формально живут в layer='lights', но они физические
+  // объекты с реальной геометрией (≥300 мм) и symbol='rect'/'circle' — их лучше
+  // рендерить как мебель, чтобы подпись «Торшер» была видна прямо на иконке.
+  const isPhysicalInMarkerLayer = (symbol === 'rect' || symbol === 'circle')
+    && Math.max(obj.width, obj.depth) >= 300;
+  if (isMarker(layer) && !isPhysicalInMarkerLayer) {
     // Розетки рендерим с переменным числом посадочных мест: количество = width / 80,
     // ширина корпуса = реальная obj.width (не «250 минимум», иначе одинарная и
     // четвёртная выглядят одинаково).
