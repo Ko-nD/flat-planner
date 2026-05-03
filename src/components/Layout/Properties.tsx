@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useProject } from '../../store/projectStore';
 import { findCatalog, LAYER_NAME } from '../../catalog/catalog';
+import { TRANSFORMER_DIMS } from '../../catalog/transformer';
 import { fmtArea, parseSize } from '../../utils/format';
 import { pointInPolygon } from '../../utils/geometry';
 import type { Opening, Room } from '../../types';
@@ -103,6 +104,28 @@ export function Properties() {
     );
   }
 
+  // Кровать-трансформер? Показываем кнопку «Сложить/Разложить»
+  const transformerSymbol = cat?.symbol;
+  const transformerDims = transformerSymbol ? TRANSFORMER_DIMS[transformerSymbol] : undefined;
+  const toggleTransformer = () => {
+    if (!single || !transformerDims) return;
+    const isClosed = single.state === 'closed';
+    const target = isClosed ? transformerDims.open : transformerDims.closed;
+    const oldDepth = single.depth;
+    const newDepth = target.depth;
+    const delta = newDepth - oldDepth;
+    // Корпус (стена) — у local y = -depth/2. При смене depth удерживаем эту точку
+    // в мировых координатах: смещаем центр на delta/2 в направлении «от стены».
+    const rad = (single.rotation * Math.PI) / 180;
+    updateObject(single.id, {
+      state: isClosed ? 'open' : 'closed',
+      depth: newDepth,
+      width: target.width,
+      x: single.x - (delta / 2) * Math.sin(rad),
+      y: single.y + (delta / 2) * Math.cos(rad),
+    });
+  };
+
   return (
     <div className="panel" style={{ flex: 1, minHeight: 0 }}>
       <div className="panel-header">Свойства</div>
@@ -110,7 +133,27 @@ export function Properties() {
         <div style={{ marginBottom: 6 }}>
           <span className="tag" style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>{LAYER_NAME[single.layer]}</span>
           {room && <span className="tag" style={{ marginLeft: 4 }}>{room.name}</span>}
+          {transformerDims && (
+            <span className="tag" style={{ marginLeft: 4, background: single.state === 'closed' ? 'var(--bg-soft)' : 'var(--accent-soft)', color: single.state === 'closed' ? 'var(--ink-soft)' : 'var(--accent)' }}>
+              {single.state === 'closed' ? 'сложен' : 'разложен'}
+            </span>
+          )}
         </div>
+
+        {transformerDims && (
+          <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+            <button
+              className="btn btn--small btn--accent"
+              style={{ flex: 1 }}
+              onClick={toggleTransformer}
+              title={single.state === 'closed'
+                ? `Раскладывает кровать. Глубина изменится с ${Math.round(single.depth / 10)} см на ${Math.round(transformerDims.open.depth / 10)} см.`
+                : `Складывает кровать. Глубина изменится с ${Math.round(single.depth / 10)} см на ${Math.round(transformerDims.closed.depth / 10)} см.`}
+            >
+              {single.state === 'closed' ? '⬇ Разложить' : '⬆ Сложить'}
+            </button>
+          </div>
+        )}
 
         <div className="props-row">
           <label>Название</label>

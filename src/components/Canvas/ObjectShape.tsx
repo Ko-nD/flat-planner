@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
-import { Group, Rect, Circle, Line, Text } from 'react-konva';
+import { Group, Rect, Circle, Line, Text, Ellipse } from 'react-konva';
 import type { CatalogItem, CatalogSymbol, LCorner, PlacedObject } from '../../types';
 import { LAYER_COLOR, isMarker } from '../../catalog/catalog';
+import { TRANSFORMER_DIMS } from '../../catalog/transformer';
 import { fmtDims, fmtHeight } from '../../utils/format';
 
 interface Props {
@@ -530,6 +531,220 @@ function BackTrim({ corner, w, d, leg }: { corner: LCorner; w: number; d: number
   );
 }
 
+// === Кровать-трансформер: корпус у стены + (когда разложен) спальное место ===
+// «Стена» — сторона local-y = -depth/2 (top в локальных координатах объекта).
+// Корпус толщиной cabinetThickness всегда рендерится у этого края, а ниже него —
+// пустота (closed) или матрас (open).
+function TransformerBed({ obj, symbol, color, selected }: {
+  obj: PlacedObject; symbol: CatalogSymbol; color: string; selected: boolean;
+}) {
+  const dims = TRANSFORMER_DIMS[symbol];
+  if (!dims) return null;
+  const w = obj.width;
+  const d = obj.depth;
+  const isClosed = obj.state === 'closed';
+  // Толщина корпуса не превышает текущую глубину объекта — иначе при closed просто
+  // занимает всё пространство.
+  const cabH = Math.min(dims.cabinetThickness, d);
+  // Координата нижнего края корпуса (в локальных)
+  const cabBot = -d / 2 + cabH;
+  const stroke = selected ? '#0f62fe' : '#5a4a30';
+  const cabFill = '#c9b78a';     // тёплый карамельный цвет корпуса
+  const bedFill = '#f3ebd2';     // светлый матрас
+  const accent = '#9a8260';
+
+  return (
+    <>
+      {/* Корпус (всегда виден) */}
+      <Rect
+        x={-w / 2}
+        y={-d / 2}
+        width={w}
+        height={cabH}
+        fill={cabFill}
+        stroke={stroke}
+        strokeWidth={selected ? 2.5 : 1.5}
+        strokeScaleEnabled={false}
+        cornerRadius={6}
+      />
+
+      {/* Декорации корпуса в зависимости от типа */}
+      {symbol === 'transformer-bed-v' && (
+        // Вертикальная Murphy: 2 фасадные дверцы + ручки
+        <>
+          <Line points={[0, -d / 2 + 12, 0, cabBot - 12]} stroke={accent} strokeWidth={1.5} strokeScaleEnabled={false} />
+          <Circle x={-w * 0.18} y={-d / 2 + cabH / 2} radius={28} fill={accent} />
+          <Circle x={ w * 0.18} y={-d / 2 + cabH / 2} radius={28} fill={accent} />
+        </>
+      )}
+      {symbol === 'transformer-bed-h' && (
+        // Горизонтальная Murphy: одна большая дверца с боковой ручкой
+        <>
+          <Line points={[-w / 2 + 12, cabBot - 12, w / 2 - 12, cabBot - 12]} stroke={accent} strokeWidth={1} strokeScaleEnabled={false} dash={[8, 6]} />
+          <Circle x={w / 2 - 80} y={-d / 2 + cabH / 2} radius={28} fill={accent} />
+        </>
+      )}
+      {symbol === 'transformer-bed-cabinet' && (
+        // Кровать-шкаф: 4 секции (две по бокам — полки, центральная — дверь кровати)
+        <>
+          <Line points={[-w * 0.28, -d / 2 + 12, -w * 0.28, cabBot - 12]} stroke={accent} strokeWidth={1.5} strokeScaleEnabled={false} />
+          <Line points={[ w * 0.28, -d / 2 + 12,  w * 0.28, cabBot - 12]} stroke={accent} strokeWidth={1.5} strokeScaleEnabled={false} />
+          {/* Полки в боковых секциях */}
+          {[0.25, 0.5, 0.75].map((t, i) => (
+            <Line
+              key={i}
+              points={[
+                -w / 2 + 30, -d / 2 + cabH * t, -w * 0.28 - 8, -d / 2 + cabH * t,
+              ]}
+              stroke={accent}
+              strokeWidth={1}
+              strokeScaleEnabled={false}
+              dash={[6, 4]}
+            />
+          ))}
+          {[0.25, 0.5, 0.75].map((t, i) => (
+            <Line
+              key={`r-${i}`}
+              points={[
+                w * 0.28 + 8, -d / 2 + cabH * t, w / 2 - 30, -d / 2 + cabH * t,
+              ]}
+              stroke={accent}
+              strokeWidth={1}
+              strokeScaleEnabled={false}
+              dash={[6, 4]}
+            />
+          ))}
+          <Circle x={0} y={-d / 2 + cabH / 2} radius={32} fill={accent} />
+        </>
+      )}
+      {symbol === 'transformer-sofa-bed' && (
+        // Диван-кровать: спинка по верху, подлокотники по бокам, сиденье в середине
+        <>
+          <Rect x={-w / 2 + 30} y={-d / 2 + 30} width={w - 60} height={cabH * 0.32} fill={bedFill} stroke={accent} strokeWidth={1.2} strokeScaleEnabled={false} cornerRadius={6} />
+          <Rect x={-w / 2 + 30} y={-d / 2 + cabH * 0.36} width={w * 0.08} height={cabH * 0.55} fill={bedFill} stroke={accent} strokeWidth={1.2} strokeScaleEnabled={false} cornerRadius={4} />
+          <Rect x={ w / 2 - 30 - w * 0.08} y={-d / 2 + cabH * 0.36} width={w * 0.08} height={cabH * 0.55} fill={bedFill} stroke={accent} strokeWidth={1.2} strokeScaleEnabled={false} cornerRadius={4} />
+        </>
+      )}
+
+      {/* Разложенная кровать (когда state !== 'closed' и есть место под кроватью) */}
+      {!isClosed && d > cabH + 100 && (() => {
+        const bedTop = cabBot;
+        const bedH = d - cabH;
+        const pillowH = Math.min(bedH * 0.18, 250);
+        return (
+          <>
+            <Rect
+              x={-w / 2}
+              y={bedTop}
+              width={w}
+              height={bedH}
+              fill={bedFill}
+              stroke={selected ? '#0f62fe' : '#9a8e6f'}
+              strokeWidth={selected ? 2.5 : 1.5}
+              strokeScaleEnabled={false}
+              cornerRadius={20}
+            />
+            {/* Подушки у изголовья (примыкают к корпусу) */}
+            <Rect
+              x={-w / 2 + 60}
+              y={bedTop + 40}
+              width={w - 120}
+              height={pillowH}
+              fill="rgba(154, 142, 111, 0.18)"
+              stroke="#9a8e6f"
+              strokeWidth={1.2}
+              strokeScaleEnabled={false}
+              cornerRadius={20}
+            />
+            {/* Складка одеяла */}
+            <Line
+              points={[-w / 2 + 80, bedTop + pillowH + 100, w / 2 - 80, bedTop + pillowH + 100]}
+              stroke="#9a8e6f"
+              strokeWidth={1.5}
+              strokeScaleEnabled={false}
+              dash={[20, 16]}
+            />
+            {/* Стрелка движения «откидывания» — лёгкий намёк, что это трансформер */}
+            <Line
+              points={[
+                w / 2 + 30, -d / 2 + cabH / 2,
+                w / 2 + 90, -d / 2 + cabH / 2 + 30,
+                w / 2 + 30, -d / 2 + cabH / 2 + 60,
+              ]}
+              stroke="#0f62fe"
+              strokeWidth={1.5}
+              strokeScaleEnabled={false}
+              opacity={0.5}
+              listening={false}
+            />
+          </>
+        );
+      })()}
+    </>
+  );
+}
+
+// === Раковина-стиралка: корпус стиралки + плоская раковина-«лоток» сверху ===
+// Видно с высоты птичьего полёта: контур = ширина машины, верх = раковина с
+// дренажной чашей и краном у задней стенки.
+function WasherSink({ w, d, color, selected }: { w: number; d: number; color: string; selected: boolean }) {
+  const stroke = selected ? '#0f62fe' : '#4a8db5';
+  return (
+    <>
+      {/* Корпус стиралки — прямоугольник с пунктирной обводкой (намёк, что снизу) */}
+      <Rect
+        x={-w / 2 + 20}
+        y={-d / 2 + 20}
+        width={w - 40}
+        height={d - 40}
+        fill="#e8eef3"
+        stroke={stroke}
+        strokeWidth={1.2}
+        strokeScaleEnabled={false}
+        dash={[8, 6]}
+        cornerRadius={6}
+      />
+      {/* Сама раковина — плоский лоток поверх */}
+      <Rect
+        x={-w / 2 + 50}
+        y={-d / 2 + 50}
+        width={w - 100}
+        height={d - 100}
+        fill={color === 'plumbing' ? '#cfe7f5' : '#cfe7f5'}
+        stroke={stroke}
+        strokeWidth={selected ? 2.5 : 1.5}
+        strokeScaleEnabled={false}
+        cornerRadius={Math.min(40, (d - 100) * 0.2)}
+      />
+      {/* Сливное отверстие */}
+      <Circle x={0} y={d * 0.1} radius={Math.min(40, d * 0.1)} fill="#f8f5ee" stroke={stroke} strokeWidth={1.5} strokeScaleEnabled={false} />
+      <Circle x={0} y={d * 0.1} radius={Math.min(20, d * 0.05)} fill={stroke} />
+      {/* Кран у задней стенки */}
+      <Rect
+        x={-w * 0.04}
+        y={-d / 2 + 60}
+        width={w * 0.08}
+        height={Math.min(120, d * 0.2)}
+        fill={stroke}
+        cornerRadius={6}
+      />
+      {/* Иконка-«стиралка снизу»: люк-круг в правом нижнем */}
+      <Circle x={w * 0.28} y={d * 0.28} radius={Math.min(40, w * 0.06)} fill="transparent" stroke={stroke} strokeWidth={1.2} strokeScaleEnabled={false} />
+      <Text
+        text="W"
+        x={w * 0.28} y={d * 0.28}
+        fontSize={Math.min(40, w * 0.06)}
+        fontFamily="Inter, system-ui"
+        fontStyle="700"
+        fill={stroke}
+        offsetX={Math.min(12, w * 0.018)}
+        offsetY={Math.min(20, w * 0.03)}
+        listening={false}
+      />
+    </>
+  );
+}
+
 export function ObjectShape({ obj, catalog, selected, hovered, showLabel }: Props) {
   const layer = obj.layer;
   const color = LAYER_COLOR[layer];
@@ -726,6 +941,75 @@ export function ObjectShape({ obj, catalog, selected, hovered, showLabel }: Prop
             align="center" verticalAlign="middle"
             width={r * 2} height={r * 2}
             offsetX={r} offsetY={r}
+            listening={false}
+          />
+        )}
+      </Group>
+    );
+  }
+
+  // Кровати-трансформеры (4 типа)
+  if (
+    symbol === 'transformer-bed-v' ||
+    symbol === 'transformer-bed-h' ||
+    symbol === 'transformer-bed-cabinet' ||
+    symbol === 'transformer-sofa-bed'
+  ) {
+    return (
+      <Group rotation={obj.rotation}>
+        <TransformerBed obj={obj} symbol={symbol} color={color} selected={selected} />
+        {showLabel && obj.label && (
+          <Text
+            text={obj.label}
+            fontSize={Math.min(obj.width, obj.depth) > 800 ? 120 : 90}
+            fontFamily="Inter, system-ui"
+            fontStyle="600"
+            fill="#3a3f4a"
+            align="center"
+            verticalAlign="middle"
+            width={obj.width}
+            height={Math.min(obj.depth, (TRANSFORMER_DIMS[symbol]?.cabinetThickness ?? obj.depth))}
+            x={0}
+            y={-obj.depth / 2 + Math.min(obj.depth, (TRANSFORMER_DIMS[symbol]?.cabinetThickness ?? obj.depth)) / 2}
+            offsetX={obj.width / 2}
+            offsetY={Math.min(obj.depth, (TRANSFORMER_DIMS[symbol]?.cabinetThickness ?? obj.depth)) / 2}
+            padding={12}
+            listening={false}
+          />
+        )}
+        {showLabel && (
+          <Text
+            text={fmtDims(obj.width, obj.depth)}
+            fontSize={70}
+            fontFamily="Inter, system-ui"
+            fill="#7a6e54"
+            x={-obj.width / 2}
+            y={obj.depth / 2 - 90}
+            width={obj.width}
+            align="center"
+            listening={false}
+          />
+        )}
+      </Group>
+    );
+  }
+
+  // Раковина-стиралка
+  if (symbol === 'washer-sink') {
+    return (
+      <Group rotation={obj.rotation}>
+        <WasherSink w={obj.width} d={obj.depth} color={color} selected={selected} />
+        {showLabel && obj.label && (
+          <Text
+            text={obj.label}
+            fontSize={70}
+            fontFamily="Inter, system-ui"
+            fontStyle="600"
+            fill="#3a3f4a"
+            x={-obj.width / 2}
+            y={obj.depth / 2 + 30}
+            width={obj.width}
+            align="center"
             listening={false}
           />
         )}

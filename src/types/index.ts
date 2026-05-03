@@ -60,6 +60,8 @@ export type CatalogSymbol =
   | 'rect' | 'circle' | 'polygon' | 'l-shape'
   | 'l-sofa'
   | 'bed-icon' | 'sofa-icon' | 'table-icon' | 'chair-icon' | 'tv-icon' | 'breezer-icon'
+  | 'transformer-bed-v' | 'transformer-bed-h' | 'transformer-bed-cabinet' | 'transformer-sofa-bed'
+  | 'washer-sink'
   | 'socket' | 'switch' | 'light' | 'spotlight' | 'sconce'
   | 'tv-socket' | 'rj45' | 'antenna' | 'dimmer' | 'thermostat'
   | 'ac' | 'extract' | 'water' | 'drain' | 'note';
@@ -123,6 +125,9 @@ export interface PlacedObject {
   mountHeight?: number;
   // Помещение, к которому объект приписан (для отчётов)
   roomId?: string;
+  // Для трансформеров (кровать-шкаф и проч.): 'closed' — сложен, 'open' — разложен.
+  // При смене состояния меняется внешний вид и фактический габарит (width/depth).
+  state?: 'closed' | 'open';
 }
 
 // Текстовая «подпись двери» без дуги — для проёмов на диагональных стенах,

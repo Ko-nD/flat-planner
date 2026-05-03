@@ -49,6 +49,18 @@ const FURNITURE: CatalogItem[] = [
   { id: 'sofa-bed',    layer: 'furniture', category: 'Спальня',  name: 'Диван-кровать',      width: 2000, depth: 950,  symbol: 'sofa-icon', hint: 'Раскладной диван (в собранном виде)' },
   { id: 'daybed',      layer: 'furniture', category: 'Спальня',  name: 'Кушетка',            width: 1900, depth: 800,  symbol: 'sofa-icon' },
 
+  // === Трансформеры. По умолчанию кладём в каталог в разложенном виде (open) —
+  // основной габарит, который видно с одного взгляда. В Свойствах есть кнопка
+  // «Сложить» — корпус остаётся на стене, а спальное место уезжает к фасаду. ===
+  { id: 'bed-transformer-v',       layer: 'furniture', category: 'Спальня', name: 'Кровать-трансформер вертикальная', width: 1700, depth: 2200, symbol: 'transformer-bed-v',
+    hint: 'Murphy bed: корпус 1700×450 у короткой стены, спальное 1600×2000 раскладывается перпендикулярно. Кнопка «Сложить/Разложить» — в Свойствах.', wallMounted: true },
+  { id: 'bed-transformer-h',       layer: 'furniture', category: 'Спальня', name: 'Кровать-трансформер горизонтальная', width: 2200, depth: 1700, symbol: 'transformer-bed-h',
+    hint: 'Корпус 2200×450 у длинной стены, спальное 1600×2000 раскладывается боком. Удобно когда стена длинная, а места мало в глубину.', wallMounted: true },
+  { id: 'bed-transformer-cabinet', layer: 'furniture', category: 'Спальня', name: 'Кровать-шкаф (180×200)',           width: 1800, depth: 2200, symbol: 'transformer-bed-cabinet',
+    hint: 'Корпус 1800×600 со встроенной штангой и полками; спальное 1600×2000 откидывается. Глубже обычной Murphy bed за счёт хранения.', wallMounted: true },
+  { id: 'sofa-bed-transformer',    layer: 'furniture', category: 'Спальня', name: 'Диван-кровать (раскладной)',       width: 2000, depth: 2000, symbol: 'transformer-sofa-bed',
+    hint: 'Еврокнижка: 2000×950 диван, в разложенном виде 2000×2000. Сидушка остаётся на стене, спинка опускается, выкатывается матрас.' },
+
   { id: 'nightstand',     layer: 'furniture', category: 'Спальня',  name: 'Тумба прикроватная',   width: 450, depth: 400, symbol: 'rect' },
   { id: 'nightstand-wide',layer: 'furniture', category: 'Спальня',  name: 'Тумба прикр. 600',     width: 600, depth: 400, symbol: 'rect' },
   { id: 'commode',        layer: 'furniture', category: 'Спальня',  name: 'Комод 100',            width: 1000, depth: 450, symbol: 'rect' },
@@ -265,6 +277,13 @@ const PLUMBING: CatalogItem[] = [
   { id: 'sink-corner',  layer: 'plumbing', category: 'Раковины', name: 'Угловая раковина',  width: 500, depth: 500, symbol: 'l-shape', shapeData: { legA: 200, legB: 200, corner: 'br' } },
   { id: 'sink-pedestal',layer: 'plumbing', category: 'Раковины', name: 'Раковина-тюльпан', width: 550, depth: 450, symbol: 'rect' },
   { id: 'sink-tank',    layer: 'plumbing', category: 'Раковины', name: 'Раковина-чаша',    width: 400, depth: 400, symbol: 'circle' },
+  // === Раковина-стиралка (комбо: снизу стиралка, сверху плоская раковина) ===
+  // Реальные размеры по производителям (Эстет, Domino, Кувшинка): шириной от 500
+  // до 600 мм, глубина 200 — 600 мм. Раковина плоская (60–80 мм глубиной чаши)
+  // и крепится прямо над стиральной машиной — экономит ~0.5 м² пола в маленьких
+  // санузлах, частая практика в хрущёвках и студиях.
+  { id: 'washer-sink-50',  layer: 'plumbing', category: 'Раковины', name: 'Раковина-стиралка 500×500', width: 500, depth: 500, symbol: 'washer-sink', hint: 'Снизу стиралка слим (35–45 см глубиной), сверху плоская раковина. Экономит место в малом санузле.' },
+  { id: 'washer-sink-60',  layer: 'plumbing', category: 'Раковины', name: 'Раковина-стиралка 600×600', width: 600, depth: 600, symbol: 'washer-sink', hint: 'Стандарт под полноразмерную стиральную машину 60×60.' },
   { id: 'sink-cabinet-60', layer: 'plumbing', category: 'Раковины', name: 'Раковина с тумбой 600', width: 600, depth: 450, symbol: 'rect' },
   { id: 'sink-cabinet-80', layer: 'plumbing', category: 'Раковины', name: 'Раковина с тумбой 800', width: 800, depth: 480, symbol: 'rect' },
 
