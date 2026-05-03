@@ -369,7 +369,13 @@ const LIGHTS: CatalogItem[] = [
   { id: 'sconce',            layer: 'lights', category: 'Бра',     name: 'Бра',                  width: 250,  depth: 150, symbol: 'sconce', mountHeight: 1600, wallMounted: true },
   { id: 'sconce-cone',       layer: 'lights', category: 'Бра',     name: 'Бра-конус',            width: 200,  depth: 250, symbol: 'sconce', mountHeight: 1600, wallMounted: true },
   { id: 'sconce-double',     layer: 'lights', category: 'Бра',     name: 'Бра двойное',          width: 350,  depth: 200, symbol: 'sconce', mountHeight: 1600, wallMounted: true },
-  { id: 'wall-reading',      layer: 'lights', category: 'Бра',     name: 'Настенный для чтения', width: 200,  depth: 350, symbol: 'sconce', mountHeight: 1500, wallMounted: true },
+  { id: 'wall-reading',      layer: 'lights', category: 'Бра',     name: 'Настенный для чтения', width: 200,  depth: 350, symbol: 'sconce', mountHeight: 1500, wallMounted: true, hint: 'У изголовья кровати, на гибкой ножке' },
+  { id: 'wall-gooseneck',    layer: 'lights', category: 'Бра',     name: 'Бра на гибкой ножке',  width: 150,  depth: 400, symbol: 'sconce', mountHeight: 1500, wallMounted: true, hint: 'Поворотная ножка, удобно у кровати или в кабинете' },
+  { id: 'wall-mirror-light', layer: 'lights', category: 'Бра',     name: 'Подсветка зеркала',    width: 600,  depth: 80,  symbol: 'sconce', mountHeight: 1900, wallMounted: true, hint: 'Линейный над зеркалом в ванной (IP44+) или туалетным столиком' },
+  { id: 'wall-picture',      layer: 'lights', category: 'Бра',     name: 'Подсветка картины',    width: 400,  depth: 100, symbol: 'sconce', mountHeight: 2000, wallMounted: true, hint: 'Узкий, направлен вниз — для подсветки картин/полок' },
+  { id: 'wall-led-panel',    layer: 'lights', category: 'Бра',     name: 'Настенная LED-панель', width: 300,  depth: 300, symbol: 'sconce', mountHeight: 1700, wallMounted: true, hint: 'Накладная плоская панель — современный декоративный свет' },
+  { id: 'wall-nightlight',   layer: 'lights', category: 'Бра',     name: 'Настенный ночник',     width: 80,   depth: 60,  symbol: 'sconce', mountHeight: 600,  wallMounted: true, hint: 'Низко у пола, тёплый рассеянный свет в коридоре/детской' },
+  { id: 'wall-outdoor',      layer: 'lights', category: 'Бра',     name: 'Уличный фасадный',     width: 200,  depth: 150, symbol: 'sconce', mountHeight: 2400, wallMounted: true, hint: 'Балкон/прихожая снаружи (IP54+)' },
 
   // === Напольные / настольные ===
   { id: 'floor-lamp',        layer: 'lights', category: 'Напольные', name: 'Торшер',             width: 400,  depth: 400, symbol: 'circle', hint: 'Стандартный торшер с круглым основанием' },
