@@ -262,9 +262,12 @@ export const useProject = create<ProjectStore>((set, get) => {
       return newIds;
     },
 
-    select: (ids) => set({ selectedIds: ids }),
+    // При выделении объекта очищаем другие категории — иначе Properties.tsx
+    // увидит, например, ранее выбранный проём, и продолжит показывать его редактор
+    // вместо редактора нового объекта (early-return по selectedOpeningIds стоит раньше).
+    select: (ids) => set({ selectedIds: ids, selectedWallIds: [], selectedRoomIds: [], selectedOpeningIds: [] }),
     toggleSelect: (id, additive) => set((s) => {
-      if (!additive) return { selectedIds: [id] };
+      if (!additive) return { selectedIds: [id], selectedWallIds: [], selectedRoomIds: [], selectedOpeningIds: [] };
       return {
         selectedIds: s.selectedIds.includes(id)
           ? s.selectedIds.filter((x) => x !== id)
