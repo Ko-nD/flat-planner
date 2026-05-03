@@ -49,6 +49,7 @@ export function PlanCanvas() {
   const selectedIds = useProject((s) => s.selectedIds);
   const selectedWallIds = useProject((s) => s.selectedWallIds);
   const selectedRoomIds = useProject((s) => s.selectedRoomIds);
+  const selectedOpeningIds = useProject((s) => s.selectedOpeningIds);
   const hoverId = useProject((s) => s.hoverId);
   const view = useProject((s) => s.view);
   const setView = useProject((s) => s.setView);
@@ -62,8 +63,10 @@ export function PlanCanvas() {
   const toggleSelect = useProject((s) => s.toggleSelect);
   const toggleSelectWall = useProject((s) => s.toggleSelectWall);
   const toggleSelectRoom = useProject((s) => s.toggleSelectRoom);
+  const toggleSelectOpening = useProject((s) => s.toggleSelectOpening);
   const clearSelectWalls = useProject((s) => s.clearSelectWalls);
   const clearSelectRooms = useProject((s) => s.clearSelectRooms);
+  const clearSelectOpenings = useProject((s) => s.clearSelectOpenings);
   const setHover = useProject((s) => s.setHover);
   const addObject = useProject((s) => s.addObject);
   const updateObject = useProject((s) => s.updateObject);
@@ -373,6 +376,7 @@ export function PlanCanvas() {
       select([]);
       clearSelectWalls();
       clearSelectRooms();
+      clearSelectOpenings();
     }
   };
 
@@ -488,6 +492,8 @@ export function PlanCanvas() {
               geometry={geometry}
               showDoors={layerVisibility.doors}
               showWindows={layerVisibility.windows}
+              selectedIds={selectedOpeningIds}
+              onOpeningClick={tool === 'select' ? toggleSelectOpening : undefined}
             />
           )}
           {/* DoorMarkers — debug fallback, рисуется только если в geometry есть doorMarkers */}

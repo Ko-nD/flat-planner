@@ -71,6 +71,7 @@ interface ProjectStore {
   selectedIds: string[];
   selectedWallIds: string[];
   selectedRoomIds: string[];
+  selectedOpeningIds: string[];
   hoverId: string | null;
 
   tool: Tool;
@@ -102,6 +103,11 @@ interface ProjectStore {
   toggleSelectRoom: (id: string, additive: boolean) => void;
   clearSelectRooms: () => void;
   removeSelectedRooms: () => void;
+
+  toggleSelectOpening: (id: string, additive: boolean) => void;
+  clearSelectOpenings: () => void;
+  removeSelectedOpenings: () => void;
+  updateOpening: (id: string, patch: Partial<import('../types').Opening>) => void;
 
   setHover: (id: string | null) => void;
 
@@ -199,6 +205,7 @@ export const useProject = create<ProjectStore>((set, get) => {
     selectedIds: [],
     selectedWallIds: [],
     selectedRoomIds: [],
+    selectedOpeningIds: [],
     hoverId: null,
     tool: 'select',
     placeCatalogId: null,
@@ -262,10 +269,10 @@ export const useProject = create<ProjectStore>((set, get) => {
           : [...s.selectedIds, id],
       };
     }),
-    clearSelect: () => set({ selectedIds: [], selectedWallIds: [], selectedRoomIds: [] }),
+    clearSelect: () => set({ selectedIds: [], selectedWallIds: [], selectedRoomIds: [], selectedOpeningIds: [] }),
 
     toggleSelectWall: (id, additive) => set((s) => {
-      if (!additive) return { selectedWallIds: [id], selectedIds: [], selectedRoomIds: [] };
+      if (!additive) return { selectedWallIds: [id], selectedIds: [], selectedRoomIds: [], selectedOpeningIds: [] };
       return {
         selectedWallIds: s.selectedWallIds.includes(id)
           ? s.selectedWallIds.filter((x) => x !== id)
@@ -288,7 +295,7 @@ export const useProject = create<ProjectStore>((set, get) => {
     }),
 
     toggleSelectRoom: (id, additive) => set((s) => {
-      if (!additive) return { selectedRoomIds: [id], selectedIds: [], selectedWallIds: [] };
+      if (!additive) return { selectedRoomIds: [id], selectedIds: [], selectedWallIds: [], selectedOpeningIds: [] };
       return {
         selectedRoomIds: s.selectedRoomIds.includes(id)
           ? s.selectedRoomIds.filter((x) => x !== id)
@@ -308,6 +315,35 @@ export const useProject = create<ProjectStore>((set, get) => {
         selectedRoomIds: [],
       };
     }),
+
+    toggleSelectOpening: (id, additive) => set((s) => {
+      if (!additive) return { selectedOpeningIds: [id], selectedIds: [], selectedWallIds: [], selectedRoomIds: [] };
+      return {
+        selectedOpeningIds: s.selectedOpeningIds.includes(id)
+          ? s.selectedOpeningIds.filter((x) => x !== id)
+          : [...s.selectedOpeningIds, id],
+      };
+    }),
+    clearSelectOpenings: () => set({ selectedOpeningIds: [] }),
+    removeSelectedOpenings: () => set((s) => {
+      if (!s.selectedOpeningIds.length) return s;
+      const ids = new Set(s.selectedOpeningIds);
+      return {
+        ...pushHistory(s),
+        geometry: {
+          ...s.geometry,
+          openings: s.geometry.openings.filter((o) => !ids.has(o.id)),
+        },
+        selectedOpeningIds: [],
+      };
+    }),
+    updateOpening: (id, patch) => set((s) => ({
+      ...pushHistory(s),
+      geometry: {
+        ...s.geometry,
+        openings: s.geometry.openings.map((o) => (o.id === id ? { ...o, ...patch } : o)),
+      },
+    })),
 
     setHover: (id) => set({ hoverId: id }),
 

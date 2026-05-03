@@ -8,8 +8,10 @@ export function useCanvasKeys() {
   const selectedIds = useProject((s) => s.selectedIds);
   const selectedWallIds = useProject((s) => s.selectedWallIds);
   const selectedRoomIds = useProject((s) => s.selectedRoomIds);
+  const selectedOpeningIds = useProject((s) => s.selectedOpeningIds);
   const removeSelectedWalls = useProject((s) => s.removeSelectedWalls);
   const removeSelectedRooms = useProject((s) => s.removeSelectedRooms);
+  const removeSelectedOpenings = useProject((s) => s.removeSelectedOpenings);
   const objects = useProject((s) => s.objects);
   const cancelPlacement = useProject((s) => s.cancelPlacement);
   const tool = useProject((s) => s.tool);
@@ -39,6 +41,7 @@ export function useCanvasKeys() {
         if (selectedIds.length) { removeObjects(selectedIds); acted = true; }
         if (selectedWallIds.length) { removeSelectedWalls(); acted = true; }
         if (selectedRoomIds.length) { removeSelectedRooms(); acted = true; }
+        if (selectedOpeningIds.length) { removeSelectedOpenings(); acted = true; }
         if (acted) e.preventDefault();
         return;
       }
@@ -95,8 +98,8 @@ export function useCanvasKeys() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [
-    selectedIds, selectedWallIds, selectedRoomIds, objects, tool, showGrid,
-    removeObjects, removeSelectedWalls, removeSelectedRooms,
+    selectedIds, selectedWallIds, selectedRoomIds, selectedOpeningIds, objects, tool, showGrid,
+    removeObjects, removeSelectedWalls, removeSelectedRooms, removeSelectedOpenings,
     duplicateObjects, updateObject, cancelPlacement, setTool, setShowGrid,
   ]);
 }

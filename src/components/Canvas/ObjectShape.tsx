@@ -201,6 +201,25 @@ function FurnitureIcon({ symbol, w, d }: { symbol: CatalogSymbol; w: number; d: 
 
 // Универсальная L-форма (используется и для дивана, и для произвольных пользовательских L-предметов).
 // legA — толщина горизонтальной «ноги», legB — вертикальной. Если не заданы — 40% от меньшей стороны.
+// Точка для размещения текстовой подписи внутри L-формы. У L bbox-центр часто
+// попадает в «пустой» угол — нужно явно выбрать центр одного из плечей.
+function lLabelBox(w: number, d: number, corner: LCorner, legA?: number, legB?: number) {
+  const lA = legA ?? Math.min(w, d) * 0.4;
+  const lB = legB ?? Math.min(w, d) * 0.4;
+  // Площадь горизонтального плеча vs вертикального — выбираем «жирнее»
+  const hArea = w * lA;
+  const vArea = lB * d;
+  const useH = hArea >= vArea;
+  if (useH) {
+    // Горизонтальное плечо (вверху или внизу) — Y зависит от corner
+    const cy = (corner === 'tl' || corner === 'tr') ? -d / 2 + lA / 2 : d / 2 - lA / 2;
+    return { cx: 0, cy, bw: w, bh: lA };
+  }
+  // Вертикальное плечо (слева или справа) — X зависит от corner
+  const cx = (corner === 'tl' || corner === 'bl') ? -w / 2 + lB / 2 : w / 2 - lB / 2;
+  return { cx, cy: 0, bw: lB, bh: d };
+}
+
 function buildLPolygon(w: number, d: number, corner: LCorner, legA?: number, legB?: number): number[] {
   const lA = legA ?? Math.min(w, d) * 0.4; // толщина для нижней/верхней ноги (по горизонтали)
   const lB = legB ?? Math.min(w, d) * 0.4; // толщина для левой/правой ноги (по вертикали)
@@ -423,18 +442,21 @@ export function ObjectShape({ obj, catalog, selected, hovered, showLabel }: Prop
 
   // L-образный диван
   if (symbol === 'l-sofa') {
+    const corner = obj.corner ?? 'bl';
+    const lb = lLabelBox(obj.width, obj.depth, corner);
     return (
       <Group rotation={obj.rotation}>
-        <LSofaShape w={obj.width} d={obj.depth} corner={obj.corner ?? 'bl'} selected={selected} color={color} />
+        <LSofaShape w={obj.width} d={obj.depth} corner={corner} selected={selected} color={color} />
         {showLabel && obj.label && (
           <Text
             text={obj.label}
-            fontSize={Math.min(obj.width, obj.depth) > 800 ? 130 : 100}
+            fontSize={Math.min(lb.bw, lb.bh) > 600 ? 120 : 90}
             fontFamily="Inter, system-ui" fontStyle="600" fill="#3a3f4a"
             align="center" verticalAlign="middle"
-            width={obj.width} height={obj.depth}
-            offsetX={obj.width / 2} offsetY={obj.depth / 2}
-            padding={20}
+            x={lb.cx} y={lb.cy}
+            width={lb.bw} height={lb.bh}
+            offsetX={lb.bw / 2} offsetY={lb.bh / 2}
+            padding={Math.min(20, Math.min(lb.bw, lb.bh) * 0.1)}
             listening={false}
           />
         )}
@@ -445,23 +467,26 @@ export function ObjectShape({ obj, catalog, selected, hovered, showLabel }: Prop
   // Универсальная L-форма (пользовательский предмет с symbol='l-shape')
   if (symbol === 'l-shape') {
     const sd = obj.shapeData ?? catalog?.shapeData;
+    const corner = obj.corner ?? sd?.corner ?? 'bl';
+    const lb = lLabelBox(obj.width, obj.depth, corner, sd?.legA, sd?.legB);
     return (
       <Group rotation={obj.rotation}>
         <LShapeGeneric
           w={obj.width} d={obj.depth}
-          corner={obj.corner ?? sd?.corner ?? 'bl'}
+          corner={corner}
           legA={sd?.legA} legB={sd?.legB}
           selected={selected} color={color}
         />
         {showLabel && obj.label && (
           <Text
             text={obj.label}
-            fontSize={Math.min(obj.width, obj.depth) > 800 ? 130 : 100}
+            fontSize={Math.min(lb.bw, lb.bh) > 600 ? 120 : 90}
             fontFamily="Inter, system-ui" fontStyle="600" fill="#3a3f4a"
             align="center" verticalAlign="middle"
-            width={obj.width} height={obj.depth}
-            offsetX={obj.width / 2} offsetY={obj.depth / 2}
-            padding={20}
+            x={lb.cx} y={lb.cy}
+            width={lb.bw} height={lb.bh}
+            offsetX={lb.bw / 2} offsetY={lb.bh / 2}
+            padding={Math.min(20, Math.min(lb.bw, lb.bh) * 0.1)}
             listening={false}
           />
         )}

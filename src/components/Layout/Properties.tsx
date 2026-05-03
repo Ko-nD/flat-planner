@@ -3,6 +3,7 @@ import { useProject } from '../../store/projectStore';
 import { findCatalog, LAYER_NAME } from '../../catalog/catalog';
 import { fmtArea, parseSize } from '../../utils/format';
 import { pointInPolygon } from '../../utils/geometry';
+import type { Opening } from '../../types';
 
 function NumInput({ value, onChange, suffix }: { value: number; onChange: (v: number) => void; suffix?: string }) {
   const display = String(Math.round(value / 10));
@@ -32,11 +33,23 @@ function NumInput({ value, onChange, suffix }: { value: number; onChange: (v: nu
 
 export function Properties() {
   const selectedIds = useProject((s) => s.selectedIds);
+  const selectedOpeningIds = useProject((s) => s.selectedOpeningIds);
   const objects = useProject((s) => s.objects);
   const updateObject = useProject((s) => s.updateObject);
   const removeObjects = useProject((s) => s.removeObjects);
   const duplicateObjects = useProject((s) => s.duplicateObjects);
   const geometry = useProject((s) => s.geometry);
+  const updateOpening = useProject((s) => s.updateOpening);
+  const removeSelectedOpenings = useProject((s) => s.removeSelectedOpenings);
+
+  // Если выбран ровно один проём — показываем его редактор. Объекты-PlacedObject
+  // в этом случае не выбраны (toggleSelectOpening очищает selectedIds).
+  const singleOpening = selectedOpeningIds.length === 1
+    ? geometry.openings.find((o) => o.id === selectedOpeningIds[0]) ?? null
+    : null;
+  if (singleOpening) {
+    return <OpeningEditor opening={singleOpening} onUpdate={(p) => updateOpening(singleOpening.id, p)} onRemove={removeSelectedOpenings} />;
+  }
 
   const selected = useMemo(() => objects.filter((o) => selectedIds.includes(o.id)), [objects, selectedIds]);
   const single = selected.length === 1 ? selected[0] : null;
@@ -174,6 +187,132 @@ export function Properties() {
           </button>
           <button className="btn btn--small" onClick={() => duplicateObjects([single.id])}>Дублировать</button>
           <button className="btn btn--small" onClick={() => removeObjects([single.id])}>Удалить</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OpeningEditor({ opening, onUpdate, onRemove }: {
+  opening: Opening;
+  onUpdate: (patch: Partial<Opening>) => void;
+  onRemove: () => void;
+}) {
+  const geometry = useProject((s) => s.geometry);
+  const wall = geometry.walls.find((w) => w.id === opening.wallId);
+  const wallLen = wall ? Math.hypot(wall.b.x - wall.a.x, wall.b.y - wall.a.y) : 0;
+  const isDoor = opening.kind === 'door';
+  return (
+    <div className="panel" style={{ flex: 1, minHeight: 0 }}>
+      <div className="panel-header">
+        Свойства {isDoor ? '🚪 двери' : '🪟 окна'}
+        <button className="btn btn--small" style={{ marginLeft: 'auto' }} onClick={onRemove} title="Удалить проём">Удалить</button>
+      </div>
+      <div className="panel-body" style={{ flex: 1 }}>
+        <div style={{ marginBottom: 6 }}>
+          <span className="tag" style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>
+            {isDoor ? 'Дверь' : 'Окно'}
+          </span>
+          {wall && <span className="tag" style={{ marginLeft: 4 }}>стена {wall.id}</span>}
+        </div>
+
+        <div className="props-row">
+          <label>Тип</label>
+          <select
+            value={opening.kind}
+            onChange={(e) => onUpdate({ kind: e.target.value as 'door' | 'window' })}
+          >
+            <option value="door">Дверь</option>
+            <option value="window">Окно</option>
+          </select>
+        </div>
+
+        <div className="props-row">
+          <label>Подпись</label>
+          <input
+            type="text"
+            defaultValue={opening.label ?? ''}
+            placeholder={isDoor ? 'Входная' : 'Окно (Спальня)'}
+            onBlur={(e) => onUpdate({ label: e.target.value || undefined })}
+          />
+        </div>
+
+        <div className="props-row">
+          <label>Ширина (см)</label>
+          <NumInput
+            value={opening.width}
+            onChange={(v) => {
+              // Не даём шире, чем стена позволяет
+              const max = Math.max(400, wallLen - 40);
+              onUpdate({ width: Math.min(v, max) });
+            }}
+            suffix="см"
+          />
+        </div>
+        <div className="props-row">
+          <label>Сдвиг от a (см)</label>
+          <NumInput
+            value={opening.offset}
+            onChange={(v) => {
+              const half = opening.width / 2;
+              const safe = Math.max(half + 20, Math.min(wallLen - half - 20, v));
+              onUpdate({ offset: safe });
+            }}
+            suffix="см"
+          />
+        </div>
+
+        {isDoor && (
+          <>
+            <div className="props-row">
+              <label>Открывание</label>
+              <select
+                value={opening.swing ?? 'right'}
+                onChange={(e) => onUpdate({ swing: e.target.value as Opening['swing'] })}
+              >
+                <option value="left">Налево (петли у точки a)</option>
+                <option value="right">Направо (петли у точки b)</option>
+                <option value="sliding">Раздвижная</option>
+                <option value="none">Без полотна (проём)</option>
+              </select>
+            </div>
+            <div className="props-row">
+              <label>Сторона петель</label>
+              <select
+                value={opening.hingeSide ?? 'in'}
+                onChange={(e) => onUpdate({ hingeSide: e.target.value as 'in' | 'out' })}
+              >
+                <option value="in">Внутрь помещения</option>
+                <option value="out">Наружу помещения</option>
+              </select>
+            </div>
+          </>
+        )}
+
+        {!isDoor && (
+          <>
+            <div className="props-row">
+              <label>Высота окна</label>
+              <NumInput
+                value={opening.height ?? 1500}
+                onChange={(v) => onUpdate({ height: v })}
+                suffix="см"
+              />
+            </div>
+            <div className="props-row">
+              <label>Высота от пола</label>
+              <NumInput
+                value={opening.sillHeight ?? 850}
+                onChange={(v) => onUpdate({ sillHeight: v })}
+                suffix="см"
+              />
+            </div>
+          </>
+        )}
+
+        <div className="muted" style={{ fontSize: 11, marginTop: 12, lineHeight: 1.4 }}>
+          Длина стены: <strong>{Math.round(wallLen / 10)} см</strong>.
+          Изменения откатываются <span className="kbd">Ctrl+Z</span>.
         </div>
       </div>
     </div>

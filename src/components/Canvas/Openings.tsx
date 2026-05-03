@@ -6,10 +6,12 @@ interface Props {
   geometry: ApartmentGeometry;
   showDoors?: boolean;
   showWindows?: boolean;
+  selectedIds?: string[];
+  onOpeningClick?: (id: string, additive: boolean) => void;
 }
 
 // Векторный рендер двери — работает на любой стене (горизонтальной, вертикальной, диагональной).
-function DoorSwing({ wall, op }: { wall: Wall; op: Opening }) {
+function DoorSwing({ wall, op, selected }: { wall: Wall; op: Opening; selected: boolean }) {
   const seg = openingSegment(wall, op);
   const { p1, p2, width: leafLen } = seg;
 
@@ -82,9 +84,9 @@ function DoorSwing({ wall, op }: { wall: Wall; op: Opening }) {
         outerRadius={leafLen}
         angle={sweepAbs}
         rotation={startAngle}
-        fill="rgba(150, 120, 70, 0.08)"
-        stroke="#aa8a55"
-        strokeWidth={1}
+        fill={selected ? 'rgba(15, 98, 254, 0.18)' : 'rgba(150, 120, 70, 0.08)'}
+        stroke={selected ? '#0f62fe' : '#aa8a55'}
+        strokeWidth={selected ? 2 : 1}
         strokeScaleEnabled={false}
         dash={[4, 4]}
         dashEnabled={true}
@@ -92,8 +94,8 @@ function DoorSwing({ wall, op }: { wall: Wall; op: Opening }) {
       {/* Дверное полотно */}
       <Line
         points={[hinge.x, hinge.y, leafEnd.x, leafEnd.y]}
-        stroke="#8b6f4d"
-        strokeWidth={3}
+        stroke={selected ? '#0f62fe' : '#8b6f4d'}
+        strokeWidth={selected ? 4 : 3}
         strokeScaleEnabled={false}
         lineCap="round"
       />
@@ -101,7 +103,7 @@ function DoorSwing({ wall, op }: { wall: Wall; op: Opening }) {
   );
 }
 
-function Window({ wall, op }: { wall: Wall; op: Opening }) {
+function Window({ wall, op, selected }: { wall: Wall; op: Opening; selected: boolean }) {
   const seg = openingSegment(wall, op);
   const { p1, p2, width } = seg;
   const wallAngleDeg = (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
@@ -130,35 +132,88 @@ function Window({ wall, op }: { wall: Wall; op: Opening }) {
         offsetX={width / 2}
         offsetY={wall.thickness * 0.3}
         rotation={wallAngleDeg}
-        fill="#cfe7f5"
-        stroke="#4a8db5"
-        strokeWidth={1}
+        fill={selected ? '#bedaf0' : '#cfe7f5'}
+        stroke={selected ? '#0f62fe' : '#4a8db5'}
+        strokeWidth={selected ? 3 : 1}
         strokeScaleEnabled={false}
       />
       {/* Линия стекла */}
       <Line
         points={[p1.x, p1.y, p2.x, p2.y]}
-        stroke="#2b6a8d"
-        strokeWidth={2}
+        stroke={selected ? '#0f62fe' : '#2b6a8d'}
+        strokeWidth={selected ? 3 : 2}
         strokeScaleEnabled={false}
       />
     </Group>
   );
 }
 
-export function Openings({ geometry, showDoors = true, showWindows = true }: Props) {
+// Невидимый прямоугольник-хитбокс над проёмом для кликов в режиме «Выбор».
+function OpeningHitbox({ wall, op, onClick }: { wall: Wall; op: Opening; onClick: (id: string, additive: boolean) => void }) {
+  const seg = openingSegment(wall, op);
+  const { p1, p2, width } = seg;
+  const wallAngleDeg = (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
+  const opMidX = (p1.x + p2.x) / 2;
+  const opMidY = (p1.y + p2.y) / 2;
+  // Для двери берём чуть шире — чтобы можно было целиться по дуге, а не только по полотну
+  const hbHeight = (wall.thickness + 200) * (op.kind === 'door' ? 1.4 : 1.0);
   return (
-    <Group listening={false}>
+    <Rect
+      x={opMidX}
+      y={opMidY}
+      width={width + 80}
+      height={hbHeight}
+      offsetX={(width + 80) / 2}
+      offsetY={hbHeight / 2}
+      rotation={wallAngleDeg}
+      fill="rgba(0,0,0,0.001)"
+      strokeEnabled={false}
+      onMouseDown={(e) => {
+        if (e.evt.button !== 0) return;
+        e.cancelBubble = true;
+        onClick(op.id, e.evt.shiftKey);
+      }}
+      onMouseEnter={(e) => {
+        const c = e.target.getStage()?.container();
+        if (c) c.style.cursor = 'pointer';
+      }}
+      onMouseLeave={(e) => {
+        const c = e.target.getStage()?.container();
+        if (c) c.style.cursor = '';
+      }}
+    />
+  );
+}
+
+export function Openings({
+  geometry, showDoors = true, showWindows = true,
+  selectedIds, onOpeningClick,
+}: Props) {
+  const interactive = !!onOpeningClick;
+  const selected = selectedIds ?? [];
+  return (
+    <Group listening={interactive}>
       {geometry.openings.map((op) => {
         const wall = geometry.walls.find((w) => w.id === op.wallId);
         if (!wall) return null;
         if (length(wall.a, wall.b) === 0) return null;
+        const isSel = selected.includes(op.id);
         if (op.kind === 'door') {
           if (!showDoors) return null;
-          return <DoorSwing key={op.id} wall={wall} op={op} />;
+          return (
+            <Group key={op.id} listening={interactive}>
+              <DoorSwing wall={wall} op={op} selected={isSel} />
+              {interactive && <OpeningHitbox wall={wall} op={op} onClick={onOpeningClick!} />}
+            </Group>
+          );
         }
         if (!showWindows) return null;
-        return <Window key={op.id} wall={wall} op={op} />;
+        return (
+          <Group key={op.id} listening={interactive}>
+            <Window wall={wall} op={op} selected={isSel} />
+            {interactive && <OpeningHitbox wall={wall} op={op} onClick={onOpeningClick!} />}
+          </Group>
+        );
       })}
     </Group>
   );
