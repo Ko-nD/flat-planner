@@ -89,7 +89,7 @@
       {
         "id": "hall",
         "name": "Коридор",
-        "area": 4.4,
+        "area": 4.76,
         "kind": "hall",
         "polygon": [
           {
@@ -109,16 +109,16 @@
             "y": 7550
           },
           {
-            "x": 2350,
-            "y": 6335
+            "x": 2370,
+            "y": 6160
           },
           {
-            "x": 1500,
-            "y": 6250
+            "x": 1520,
+            "y": 6110
           },
           {
-            "x": 0,
-            "y": 6100
+            "x": 20,
+            "y": 5970
           }
         ],
         "notes": "Коридор: вход слева, перед санузлом единая откосная стена, справа проход к кухне."
@@ -126,16 +126,16 @@
       {
         "id": "bath",
         "name": "Ванная",
-        "area": 2,
+        "area": 2.33,
         "kind": "bath",
         "polygon": [
           {
-            "x": 0,
-            "y": 6100
+            "x": 50,
+            "y": 5900
           },
           {
-            "x": 1500,
-            "y": 6250
+            "x": 1550,
+            "y": 6100
           },
           {
             "x": 1500,
@@ -151,16 +151,16 @@
       {
         "id": "wc",
         "name": "Туалет",
-        "area": 0.9,
+        "area": 1.19,
         "kind": "wc",
         "polygon": [
           {
             "x": 1500,
-            "y": 6250
+            "y": 6100
           },
           {
             "x": 2350,
-            "y": 6335
+            "y": 6200
           },
           {
             "x": 2350,
@@ -326,12 +326,12 @@
       {
         "id": "w-san-front-bath",
         "a": {
-          "x": 0,
-          "y": 6100
+          "x": 80,
+          "y": 5890
         },
         "b": {
-          "x": 1500,
-          "y": 6250
+          "x": 1520,
+          "y": 6110
         },
         "thickness": 100,
         "notes": "Левая часть единой откосной стены санузла. На ней дверь ванной."
@@ -340,11 +340,11 @@
         "id": "w-san-front-wc",
         "a": {
           "x": 1500,
-          "y": 6250
+          "y": 6100
         },
         "b": {
           "x": 2350,
-          "y": 6335
+          "y": 6200
         },
         "thickness": 100,
         "notes": "Правая часть той же единой откосной стены санузла. На ней дверь туалета."
@@ -353,7 +353,7 @@
         "id": "w-bath-wc",
         "a": {
           "x": 1500,
-          "y": 6250
+          "y": 6100
         },
         "b": {
           "x": 1500,
@@ -366,7 +366,7 @@
         "id": "w-san-right",
         "a": {
           "x": 2350,
-          "y": 6335
+          "y": 6150
         },
         "b": {
           "x": 2350,
@@ -481,16 +481,6 @@
         "label": "В Сп.2"
       },
       {
-        "id": "door-r3",
-        "kind": "door",
-        "wallId": "w-left-r3",
-        "offset": 600,
-        "width": 800,
-        "swing": "left",
-        "hingeSide": "out",
-        "label": "В Гостиную"
-      },
-      {
         "id": "door-bath",
         "kind": "door",
         "wallId": "w-san-front-bath",
@@ -509,6 +499,15 @@
         "swing": "right",
         "hingeSide": "out",
         "label": "В туалет"
+      },
+      {
+        "id": "door-p71v7vzf",
+        "kind": "door",
+        "wallId": "w-left-r3",
+        "offset": 1000,
+        "width": 800,
+        "swing": "left",
+        "hingeSide": "out"
       }
     ]
   },
@@ -530,7 +529,7 @@
       "catalogId": "sofa-corner",
       "layer": "furniture",
       "x": 4000,
-      "y": 7800,
+      "y": 7950,
       "rotation": 90,
       "width": 2600,
       "depth": 1700,
@@ -538,42 +537,12 @@
       "roomId": "r3"
     },
     {
-      "id": "vwktaspz",
-      "catalogId": "wardrobe-corner",
-      "layer": "furniture",
-      "x": 5400,
-      "y": 5550,
-      "rotation": 90,
-      "width": 1200,
-      "depth": 1200,
-      "label": "Угловой шкаф",
-      "roomId": "r3",
-      "shapeData": {
-        "legA": 600,
-        "legB": 600,
-        "corner": "tl"
-      },
-      "corner": "tl"
-    },
-    {
-      "id": "85r7f98p",
-      "catalogId": "bed-160",
-      "layer": "furniture",
-      "x": 2050,
-      "y": 1000,
-      "rotation": 90,
-      "width": 1600,
-      "depth": 2000,
-      "label": "Кровать 160×200",
-      "roomId": "r1"
-    },
-    {
       "id": "ri6azrvh",
       "catalogId": "desk-180",
       "layer": "furniture",
-      "x": 4050,
-      "y": 550,
-      "rotation": 0,
+      "x": 5600,
+      "y": 1600,
+      "rotation": 90,
       "width": 1800,
       "depth": 800,
       "label": "Письменный стол 1.8м",
@@ -583,8 +552,8 @@
       "id": "6g159x80",
       "catalogId": "dining-table-4",
       "layer": "furniture",
-      "x": 4600,
-      "y": 8250,
+      "x": 4450,
+      "y": 8300,
       "rotation": 90,
       "width": 1200,
       "depth": 800,
@@ -607,8 +576,8 @@
       "id": "2jipe0jd",
       "catalogId": "tv-65",
       "layer": "appliances",
-      "x": 200,
-      "y": 950,
+      "x": 150,
+      "y": 1000,
       "rotation": -90,
       "width": 1450,
       "depth": 80,
@@ -620,8 +589,8 @@
       "id": "tpcrwjf1",
       "catalogId": "tv-75",
       "layer": "appliances",
-      "x": 5900,
-      "y": 8050,
+      "x": 5950,
+      "y": 8400,
       "rotation": 90,
       "width": 1670,
       "depth": 80,
@@ -632,19 +601,20 @@
       "id": "mcus2ks5",
       "catalogId": "sofa-corner",
       "layer": "furniture",
-      "x": 2350,
+      "x": 2250,
       "y": 8950,
-      "rotation": 270,
-      "width": 1300,
+      "rotation": 0,
+      "width": 1550,
       "depth": 1300,
-      "label": "Угловой диван"
+      "label": "Угловой диван",
+      "corner": "br"
     },
     {
       "id": "m6lzsjlj",
       "catalogId": "stove-gas-60",
       "layer": "appliances",
       "x": 450,
-      "y": 8600,
+      "y": 8650,
       "rotation": 90,
       "width": 600,
       "depth": 600,
@@ -652,35 +622,11 @@
       "roomId": "kitchen"
     },
     {
-      "id": "hjiw31sw",
-      "catalogId": "sink-bath",
-      "layer": "plumbing",
-      "x": 350,
-      "y": 7950,
-      "rotation": 90,
-      "width": 600,
-      "depth": 450,
-      "label": "Раковина 600",
-      "roomId": "kitchen"
-    },
-    {
-      "id": "cnw6v9kq",
-      "catalogId": "fridge-200",
-      "layer": "appliances",
-      "x": 450,
-      "y": 9250,
-      "rotation": 90,
-      "width": 600,
-      "depth": 650,
-      "label": "Холодильник 200см",
-      "roomId": "kitchen"
-    },
-    {
       "id": "gp4spz10",
       "catalogId": "dining-table-2",
       "layer": "furniture",
-      "x": 1800,
-      "y": 8450,
+      "x": 2000,
+      "y": 8600,
       "rotation": 0,
       "width": 800,
       "depth": 800,
@@ -715,9 +661,9 @@
       "id": "91tq29eb",
       "catalogId": "chair",
       "layer": "furniture",
-      "x": 4000,
-      "y": 1250,
-      "rotation": 180,
+      "x": 4950,
+      "y": 1600,
+      "rotation": 270,
       "width": 450,
       "depth": 450,
       "label": "Стул",
@@ -727,21 +673,21 @@
       "id": "3qhzb9cw",
       "catalogId": "wardrobe-2",
       "layer": "furniture",
-      "x": 5650,
-      "y": 2150,
+      "x": 3400,
+      "y": 1050,
       "rotation": 90,
-      "width": 2000,
+      "width": 1800,
       "depth": 600,
-      "label": "Шкаф 2м",
+      "label": "Шкаф 1.8м",
       "roomId": "r2"
     },
     {
       "id": "q6k1ko2l",
       "catalogId": "socket-fridge",
       "layer": "sockets",
-      "x": -50,
-      "y": 9250,
-      "rotation": 0,
+      "x": 0,
+      "y": 9300,
+      "rotation": 90,
       "width": 80,
       "depth": 80,
       "label": "Розетка холодильник",
@@ -751,9 +697,9 @@
       "id": "tcqc941p",
       "catalogId": "tv-coax",
       "layer": "data",
-      "x": 6150,
-      "y": 8100,
-      "rotation": 0,
+      "x": 6100,
+      "y": 8250,
+      "rotation": 90,
       "width": 80,
       "depth": 80,
       "label": "ТВ-розетка",
@@ -763,9 +709,9 @@
       "id": "xzgj15x9",
       "catalogId": "socket-2",
       "layer": "sockets",
-      "x": 5400,
-      "y": 4750,
-      "rotation": 0,
+      "x": 6100,
+      "y": 3000,
+      "rotation": 90,
       "width": 160,
       "depth": 80,
       "label": "Розетка двойная",
@@ -776,9 +722,9 @@
       "id": "xwswvarm",
       "catalogId": "socket-2",
       "layer": "sockets",
-      "x": 3050,
+      "x": 2950,
       "y": 1800,
-      "rotation": 0,
+      "rotation": 90,
       "width": 160,
       "depth": 80,
       "label": "Розетка двойная",
@@ -789,9 +735,9 @@
       "id": "4ww6ie6o",
       "catalogId": "tv-coax",
       "layer": "data",
-      "x": 0,
-      "y": 1050,
-      "rotation": 0,
+      "x": 50,
+      "y": 900,
+      "rotation": 90,
       "width": 80,
       "depth": 80,
       "label": "ТВ-розетка",
@@ -799,25 +745,12 @@
       "roomId": "r1"
     },
     {
-      "id": "otupf6yq",
-      "catalogId": "socket-2",
-      "layer": "sockets",
-      "x": 3000,
-      "y": 7950,
-      "rotation": 0,
-      "width": 160,
-      "depth": 80,
-      "label": "Розетка двойная",
-      "mountHeight": 300,
-      "roomId": "kitchen"
-    },
-    {
       "id": "1x1rsw1n",
       "catalogId": "socket-4",
       "layer": "sockets",
-      "x": 5900,
-      "y": 6750,
-      "rotation": 0,
+      "x": 6050,
+      "y": 6450,
+      "rotation": 90,
       "width": 320,
       "depth": 80,
       "label": "Блок 4 розетки",
@@ -829,36 +762,12 @@
       "catalogId": "tv-stand-2",
       "layer": "furniture",
       "x": 5750,
-      "y": 8100,
+      "y": 8350,
       "rotation": 90,
       "width": 2000,
       "depth": 400,
       "label": "ТВ-тумба 2м",
       "roomId": "r3"
-    },
-    {
-      "id": "rzimbfwx",
-      "catalogId": "toilet-compact",
-      "layer": "plumbing",
-      "x": 1900,
-      "y": 7150,
-      "rotation": 0,
-      "width": 360,
-      "depth": 650,
-      "label": "Компакт-унитаз",
-      "roomId": "wc"
-    },
-    {
-      "id": "h16wkxvu",
-      "catalogId": "sink-bath-50",
-      "layer": "plumbing",
-      "x": 1150,
-      "y": 7300,
-      "rotation": 0,
-      "width": 500,
-      "depth": 400,
-      "label": "Раковина компакт 500",
-      "roomId": "bath"
     },
     {
       "id": "vjwgqobj",
@@ -876,9 +785,9 @@
       "id": "p5azbwge",
       "catalogId": "socket-4",
       "layer": "sockets",
-      "x": 3350,
-      "y": 200,
-      "rotation": 0,
+      "x": 5950,
+      "y": 900,
+      "rotation": 90,
       "width": 320,
       "depth": 80,
       "label": "Блок 4 розетки",
@@ -886,25 +795,12 @@
       "roomId": "r2"
     },
     {
-      "id": "pzvi0lci",
-      "catalogId": "socket-3",
-      "layer": "sockets",
-      "x": 150,
-      "y": 4350,
-      "rotation": 0,
-      "width": 240,
-      "depth": 80,
-      "label": "Розетка тройная",
-      "mountHeight": 300,
-      "roomId": "r1"
-    },
-    {
       "id": "trjt47wq",
       "catalogId": "socket-2",
       "layer": "sockets",
       "x": 3200,
-      "y": 6150,
-      "rotation": 0,
+      "y": 6450,
+      "rotation": 270,
       "width": 160,
       "depth": 80,
       "label": "Розетка двойная",
@@ -916,8 +812,8 @@
       "catalogId": "socket-2",
       "layer": "sockets",
       "x": 3150,
-      "y": 9350,
-      "rotation": 0,
+      "y": 9400,
+      "rotation": 270,
       "width": 160,
       "depth": 80,
       "label": "Розетка двойная",
@@ -941,9 +837,9 @@
       "id": "a5s0e43i",
       "catalogId": "socket-2",
       "layer": "sockets",
-      "x": 3450,
-      "y": 4900,
-      "rotation": 0,
+      "x": 3150,
+      "y": 3100,
+      "rotation": 270,
       "width": 160,
       "depth": 80,
       "label": "Розетка двойная",
@@ -967,7 +863,7 @@
       "id": "om9ktsgg",
       "catalogId": "socket-2",
       "layer": "sockets",
-      "x": 500,
+      "x": 550,
       "y": 4950,
       "rotation": 0,
       "width": 160,
@@ -980,9 +876,9 @@
       "id": "mkvfzjfs",
       "catalogId": "socket-2",
       "layer": "sockets",
-      "x": 1450,
+      "x": 1400,
       "y": 6750,
-      "rotation": 0,
+      "rotation": 90,
       "width": 160,
       "depth": 80,
       "label": "Розетка двойная",
@@ -993,9 +889,9 @@
       "id": "kwujym2a",
       "catalogId": "socket-ac",
       "layer": "sockets",
-      "x": 6150,
-      "y": 650,
-      "rotation": 0,
+      "x": 3000,
+      "y": 400,
+      "rotation": 90,
       "width": 80,
       "depth": 80,
       "label": "Розетка для кондиц.",
@@ -1006,7 +902,7 @@
       "id": "2u0iznf8",
       "catalogId": "ac-indoor",
       "layer": "appliances",
-      "x": 5850,
+      "x": 2900,
       "y": 600,
       "rotation": 90,
       "width": 950,
@@ -1037,6 +933,334 @@
       "depth": 80,
       "label": "Настенная вешалка",
       "roomId": "hall"
+    },
+    {
+      "id": "qkj0l8vr",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 5700,
+      "y": 9550,
+      "rotation": 0,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "r3"
+    },
+    {
+      "id": "ri0klp7b",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 2750,
+      "y": 9550,
+      "rotation": 0,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "kitchen"
+    },
+    {
+      "id": "95tv42dh",
+      "catalogId": "socket-1",
+      "layer": "sockets",
+      "x": 1950,
+      "y": 7450,
+      "rotation": 0,
+      "width": 80,
+      "depth": 80,
+      "label": "Розетка одинарная",
+      "mountHeight": 300,
+      "roomId": "wc"
+    },
+    {
+      "id": "981wso9j",
+      "catalogId": "socket-4",
+      "layer": "sockets",
+      "x": 50,
+      "y": 3250,
+      "rotation": 90,
+      "width": 320,
+      "depth": 80,
+      "label": "Блок 4 розетки",
+      "mountHeight": 300,
+      "roomId": "r1"
+    },
+    {
+      "id": "0ructu3r",
+      "catalogId": "switch-2",
+      "layer": "switches",
+      "x": 3200,
+      "y": 6000,
+      "rotation": 0,
+      "width": 80,
+      "depth": 80,
+      "label": "Выключатель 2кл",
+      "mountHeight": 900,
+      "roomId": "r3"
+    },
+    {
+      "id": "zl18y5ft",
+      "catalogId": "switch-2",
+      "layer": "switches",
+      "x": 1400,
+      "y": 6000,
+      "rotation": 0,
+      "width": 80,
+      "depth": 80,
+      "label": "Выключатель 2кл",
+      "mountHeight": 900,
+      "roomId": "hall"
+    },
+    {
+      "id": "4gz662td",
+      "catalogId": "switch-2",
+      "layer": "switches",
+      "x": 2100,
+      "y": 4750,
+      "rotation": 0,
+      "width": 80,
+      "depth": 80,
+      "label": "Выключатель 2кл",
+      "mountHeight": 900,
+      "roomId": "r1"
+    },
+    {
+      "id": "5q8j0mr7",
+      "catalogId": "switch-2",
+      "layer": "switches",
+      "x": 3200,
+      "y": 1800,
+      "rotation": 0,
+      "width": 80,
+      "depth": 80,
+      "label": "Выключатель 2кл",
+      "mountHeight": 900,
+      "roomId": "r2"
+    },
+    {
+      "id": "14izcohu",
+      "catalogId": "switch-1",
+      "layer": "switches",
+      "x": 300,
+      "y": 5800,
+      "rotation": 0,
+      "width": 80,
+      "depth": 80,
+      "label": "Выключатель 1кл",
+      "mountHeight": 900,
+      "roomId": "hall"
+    },
+    {
+      "id": "ovobwrvh",
+      "catalogId": "switch-2",
+      "layer": "switches",
+      "x": 2950,
+      "y": 6650,
+      "rotation": 0,
+      "width": 80,
+      "depth": 80,
+      "label": "Выключатель 2кл",
+      "mountHeight": 900,
+      "roomId": "hall"
+    },
+    {
+      "id": "os2b4lvj",
+      "catalogId": "breezer-tion",
+      "layer": "appliances",
+      "x": 5700,
+      "y": 250,
+      "rotation": 0,
+      "width": 567,
+      "depth": 252,
+      "label": "Бризер Tion 4S",
+      "mountHeight": 2200,
+      "roomId": "r1"
+    },
+    {
+      "id": "5i9xtjpo",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 5800,
+      "y": 0,
+      "rotation": 0,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "r1"
+    },
+    {
+      "id": "cw4nys2p",
+      "catalogId": "toilet",
+      "layer": "plumbing",
+      "x": 1950,
+      "y": 7150,
+      "rotation": 0,
+      "width": 400,
+      "depth": 700,
+      "label": "Унитаз напольный",
+      "roomId": "hall"
+    },
+    {
+      "id": "jl4cbp7b",
+      "catalogId": "socket-kitchen-block",
+      "layer": "sockets",
+      "x": 0,
+      "y": 8450,
+      "rotation": 90,
+      "width": 320,
+      "depth": 80,
+      "label": "Блок над столешницей (4)",
+      "mountHeight": 1100
+    },
+    {
+      "id": "5rqlnaal",
+      "catalogId": "fridge-narrow",
+      "layer": "appliances",
+      "x": 450,
+      "y": 9300,
+      "rotation": 90,
+      "width": 550,
+      "depth": 600,
+      "label": "Холодильник узкий 55",
+      "roomId": "kitchen"
+    },
+    {
+      "id": "pg0hhhud",
+      "catalogId": "socket-2",
+      "layer": "sockets",
+      "x": 2950,
+      "y": 7950,
+      "rotation": 90,
+      "width": 160,
+      "depth": 80,
+      "label": "Розетка двойная",
+      "mountHeight": 300,
+      "roomId": "kitchen"
+    },
+    {
+      "id": "ykjpdmxu",
+      "catalogId": "sofa-corner",
+      "layer": "furniture",
+      "x": 2200,
+      "y": 1050,
+      "rotation": 90,
+      "width": 1800,
+      "depth": 1700,
+      "label": "Угловой диван",
+      "roomId": "r1",
+      "corner": "tl"
+    },
+    {
+      "id": "7pvvor9y",
+      "catalogId": "floor-lamp-table",
+      "layer": "lights",
+      "x": 5750,
+      "y": 2900,
+      "rotation": 90,
+      "width": 500,
+      "depth": 500,
+      "label": "Торшер-тумба",
+      "roomId": "r2"
+    },
+    {
+      "id": "gca1rk5t",
+      "catalogId": "washer-sink-60",
+      "layer": "plumbing",
+      "x": 1150,
+      "y": 7200,
+      "rotation": 180,
+      "width": 600,
+      "depth": 600,
+      "label": "Раковина-стиралка 600×600"
+    },
+    {
+      "id": "qybunyq2",
+      "catalogId": "sink-cabinet-60",
+      "layer": "plumbing",
+      "x": 400,
+      "y": 8000,
+      "rotation": 90,
+      "width": 600,
+      "depth": 450,
+      "label": "Раковина с тумбой 600"
+    },
+    {
+      "id": "lz1cashh",
+      "catalogId": "tv-65",
+      "layer": "appliances",
+      "x": 3150,
+      "y": 4100,
+      "rotation": 270,
+      "width": 1450,
+      "depth": 80,
+      "label": "Телевизор 65\"",
+      "mountHeight": 1100,
+      "roomId": "r2"
+    },
+    {
+      "id": "a1xjmpxt",
+      "catalogId": "tv-coax",
+      "layer": "data",
+      "x": 3150,
+      "y": 4050,
+      "rotation": 90,
+      "width": 80,
+      "depth": 80,
+      "label": "ТВ-розетка",
+      "mountHeight": 1100,
+      "roomId": "r2"
+    },
+    {
+      "id": "b9qs4m7k",
+      "catalogId": "wardrobe-slide-3",
+      "layer": "furniture",
+      "x": 4550,
+      "y": 5150,
+      "rotation": 0,
+      "width": 2900,
+      "depth": 500,
+      "label": "Шкаф-купе 2.9м",
+      "roomId": "r3"
+    },
+    {
+      "id": "vo42vgqi",
+      "catalogId": "commode-150",
+      "layer": "furniture",
+      "x": 5750,
+      "y": 6450,
+      "rotation": 90,
+      "width": 1500,
+      "depth": 450,
+      "label": "Комод 150",
+      "roomId": "r3"
+    },
+    {
+      "id": "5wsjsr75",
+      "catalogId": "wall-reading",
+      "layer": "lights",
+      "x": 3150,
+      "y": 9000,
+      "rotation": 90,
+      "width": 200,
+      "depth": 350,
+      "label": "Настенный для чтения",
+      "mountHeight": 1500,
+      "roomId": "r3"
+    },
+    {
+      "id": "qo82lnrp",
+      "catalogId": "wall-reading",
+      "layer": "lights",
+      "x": 3150,
+      "y": 7050,
+      "rotation": 90,
+      "width": 200,
+      "depth": 350,
+      "label": "Настенный для чтения",
+      "mountHeight": 1500,
+      "roomId": "r3"
     }
   ],
   "layerVisibility": {
