@@ -42,15 +42,10 @@ export function Properties() {
   const updateOpening = useProject((s) => s.updateOpening);
   const removeSelectedOpenings = useProject((s) => s.removeSelectedOpenings);
 
-  // Если выбран ровно один проём — показываем его редактор. Объекты-PlacedObject
-  // в этом случае не выбраны (toggleSelectOpening очищает selectedIds).
-  const singleOpening = selectedOpeningIds.length === 1
-    ? geometry.openings.find((o) => o.id === selectedOpeningIds[0]) ?? null
-    : null;
-  if (singleOpening) {
-    return <OpeningEditor opening={singleOpening} onUpdate={(p) => updateOpening(singleOpening.id, p)} onRemove={removeSelectedOpenings} />;
-  }
-
+  // ВАЖНО: все useMemo вызываются на каждом рендере, ДО любых early-return.
+  // Иначе при переключении между «выбран проём» и «выбран объект» меняется число
+  // вызванных хуков → React выбрасывает Rules-of-Hooks error и весь компонент
+  // (правая панель) падает в Error-Boundary, исчезая с экрана.
   const selected = useMemo(() => objects.filter((o) => selectedIds.includes(o.id)), [objects, selectedIds]);
   const single = selected.length === 1 ? selected[0] : null;
   const cat = single ? findCatalog(single.catalogId) : null;
@@ -60,6 +55,14 @@ export function Properties() {
     const pt = { x: single.x, y: single.y };
     return geometry.rooms.find((r) => pointInPolygon(pt, r.polygon)) ?? null;
   }, [single, geometry.rooms]);
+
+  // Если выбран ровно один проём — показываем его редактор.
+  const singleOpening = selectedOpeningIds.length === 1
+    ? geometry.openings.find((o) => o.id === selectedOpeningIds[0]) ?? null
+    : null;
+  if (singleOpening) {
+    return <OpeningEditor opening={singleOpening} onUpdate={(p) => updateOpening(singleOpening.id, p)} onRemove={removeSelectedOpenings} />;
+  }
 
   if (selected.length === 0) {
     return (

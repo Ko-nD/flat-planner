@@ -12,12 +12,139 @@ interface Props {
   showLabel: boolean;
 }
 
+// Маркер «выключатель» с переменным числом клавиш и опционально проходной.
+// 1кл → один рычажок, 2кл → два параллельных, 3кл → три. Проходной — добавляется
+// небольшой шеврон-«стрелка» в конце рычажка (международный знак возвратной коммутации).
+function SwitchMarker({ keys, pass, size, color }: { keys: number; pass: boolean; size: number; color: string }) {
+  const r = size / 2;
+  const k = Math.max(1, Math.min(4, keys));
+  // Направление рычажка: диагональ 45° (стандартное обозначение «бросок»).
+  const ang = -Math.PI / 4;
+  const lv = { x: Math.cos(ang), y: Math.sin(ang) };
+  // Перпендикуляр — для расстановки нескольких рычажков рядом
+  const perp = { x: -lv.y, y: lv.x };
+  const leverLen = r * 1.55;
+  const totalSpread = r * 0.55;
+  const spacing = k > 1 ? totalSpread / (k - 1) : 0;
+  const startOffset = -totalSpread / 2;
+  return (
+    <>
+      <Circle radius={r} fill="#fff" stroke={color} strokeWidth={2} strokeScaleEnabled={false} />
+      {Array.from({ length: k }).map((_, i) => {
+        const t = startOffset + i * spacing;
+        const cx = perp.x * t;
+        const cy = perp.y * t;
+        const x1 = cx - lv.x * leverLen / 2;
+        const y1 = cy - lv.y * leverLen / 2;
+        const x2 = cx + lv.x * leverLen / 2;
+        const y2 = cy + lv.y * leverLen / 2;
+        return (
+          <Group key={i}>
+            <Line points={[x1, y1, x2, y2]} stroke={color} strokeWidth={2.2} strokeScaleEnabled={false} lineCap="round" />
+            {/* Шарик-«ось» в начале рычажка */}
+            <Circle x={x1} y={y1} radius={r * 0.13} fill={color} />
+            {/* Шеврон ↗ в конце рычажка для проходного выключателя */}
+            {pass && (
+              <>
+                <Line
+                  points={[
+                    x2, y2,
+                    x2 - lv.x * r * 0.28 + perp.x * r * 0.18,
+                    y2 - lv.y * r * 0.28 + perp.y * r * 0.18,
+                  ]}
+                  stroke={color}
+                  strokeWidth={2}
+                  strokeScaleEnabled={false}
+                  lineCap="round"
+                />
+                <Line
+                  points={[
+                    x2, y2,
+                    x2 - lv.x * r * 0.28 - perp.x * r * 0.18,
+                    y2 - lv.y * r * 0.28 - perp.y * r * 0.18,
+                  ]}
+                  stroke={color}
+                  strokeWidth={2}
+                  strokeScaleEnabled={false}
+                  lineCap="round"
+                />
+              </>
+            )}
+          </Group>
+        );
+      })}
+    </>
+  );
+}
+
+// Парсер catalogId выключателя — определяет число клавиш и «проходной»-флаг.
+function parseSwitchType(catalogId?: string): { keys: number; pass: boolean } {
+  if (!catalogId) return { keys: 1, pass: false };
+  const passMatch = catalogId.match(/^switch-pass(?:-(\d+))?$/);
+  if (passMatch) return { keys: passMatch[1] ? +passMatch[1] : 1, pass: true };
+  const numMatch = catalogId.match(/^switch-(\d+)$/);
+  if (numMatch) return { keys: +numMatch[1], pass: false };
+  return { keys: 1, pass: false };
+}
+
+// Маркер «розетка» с переменным числом посадочных мест.
+// 1 место → одиночная, 2 → двойная, 3 → тройная и т.д. Корпус вытянут вдоль ширины.
+function SocketMarker({ count, w, d, color }: { count: number; w: number; d: number; color: string }) {
+  const c = Math.max(1, Math.min(8, Math.round(count)));
+  // «Юнит» — один посадочный кружок. Радиус зависит от меньшей стороны и числа юнитов.
+  const unitR = Math.min(d * 0.42, (w / c) * 0.42);
+  const positions: number[] = c === 1
+    ? [0]
+    : Array.from({ length: c }, (_, i) => -w / 2 + (w / c) * (i + 0.5));
+  return (
+    <>
+      {/* Корпус: stadium-shape — закруглённый прямоугольник по ширине рамки */}
+      <Rect
+        x={-w / 2}
+        y={-d / 2}
+        width={w}
+        height={d}
+        cornerRadius={d / 2}
+        fill="#fff"
+        stroke={color}
+        strokeWidth={1.5}
+        strokeScaleEnabled={false}
+      />
+      {/* Перегородки между юнитами */}
+      {c > 1 && positions.slice(0, -1).map((p, i) => {
+        const next = positions[i + 1];
+        const x = (p + next) / 2;
+        return (
+          <Line
+            key={`sep-${i}`}
+            points={[x, -d / 2 + 8, x, d / 2 - 8]}
+            stroke={color}
+            strokeWidth={1}
+            strokeScaleEnabled={false}
+            dash={[4, 4]}
+          />
+        );
+      })}
+      {/* Сами «гнёзда»: круг + вертикаль (контакт земли) + 2 коротких лепестка по бокам */}
+      {positions.map((cx, i) => (
+        <Group key={i} x={cx}>
+          <Circle radius={unitR} fill="#fff" stroke={color} strokeWidth={1.8} strokeScaleEnabled={false} />
+          <Line points={[0, -unitR * 0.85, 0, unitR * 0.85]} stroke={color} strokeWidth={1.8} strokeScaleEnabled={false} />
+          <Line points={[-unitR * 0.5, -unitR * 0.4, -unitR * 0.5, unitR * 0.4]} stroke={color} strokeWidth={1.6} strokeScaleEnabled={false} />
+          <Line points={[unitR * 0.5, -unitR * 0.4, unitR * 0.5, unitR * 0.4]} stroke={color} strokeWidth={1.6} strokeScaleEnabled={false} />
+        </Group>
+      ))}
+    </>
+  );
+}
+
 // Маркер (электрика, заметки) — фиксированный значок ~250 мм
 function MarkerShape({ kind, size, color }: { kind: CatalogSymbol; size: number; color: string }) {
   const r = size / 2;
 
   switch (kind) {
     case 'socket':
+      // Старый одиночный круг — оставляем как fallback, основной путь в SocketMarker.
       return (
         <>
           <Circle radius={r} fill="#fff" stroke={color} strokeWidth={2} strokeScaleEnabled={false} />
@@ -416,7 +543,67 @@ export function ObjectShape({ obj, catalog, selected, hovered, showLabel }: Prop
 
   // Маркер
   if (isMarker(layer)) {
+    // Розетки рендерим с переменным числом посадочных мест: количество = width / 80,
+    // ширина корпуса = реальная obj.width (не «250 минимум», иначе одинарная и
+    // четвёртная выглядят одинаково).
+    if (symbol === 'socket') {
+      const count = Math.max(1, Math.round(obj.width / 80));
+      const w = Math.max(obj.width, 240);  // минимум 240 мм для читаемости одиночной
+      const d = Math.max(obj.depth, 200);
+      return (
+        <Group rotation={obj.rotation}>
+          {(selected || hovered) && (
+            <Rect
+              x={-w / 2 - 50}
+              y={-d / 2 - 50}
+              width={w + 100}
+              height={d + 100}
+              cornerRadius={(d + 100) / 2}
+              fill="rgba(15, 98, 254, 0.10)"
+              stroke={stroke}
+              strokeWidth={2}
+              strokeScaleEnabled={false}
+              dash={selected ? [] : [6, 4]}
+            />
+          )}
+          <SocketMarker count={count} w={w} d={d} color={color} />
+          {/* Без числового бейджа — количество гнёзд считывается визуально по корпусу */}
+          {showLabel && obj.label && (
+            <Text x={0} y={d / 2 + 60} text={obj.label} fontSize={110} fontFamily="Inter, system-ui" fill="#3a3f4a" align="center" width={1800} offsetX={900} listening={false} />
+          )}
+          {showLabel && obj.mountHeight != null && (
+            <Text x={0} y={d / 2 + 200} text={fmtHeight(obj.mountHeight)} fontSize={90} fontFamily="Inter, system-ui" fill="#7a6e54" align="center" width={1800} offsetX={900} listening={false} />
+          )}
+        </Group>
+      );
+    }
+
     const markerSize = Math.max(obj.width, obj.depth, 250);
+    // Выключатели: число клавиш + «проходной» определяем из catalogId
+    if (symbol === 'switch') {
+      const { keys, pass } = parseSwitchType(obj.catalogId);
+      return (
+        <Group rotation={obj.rotation}>
+          {(selected || hovered) && (
+            <Circle
+              radius={markerSize / 2 + 80}
+              fill="rgba(15, 98, 254, 0.10)"
+              stroke={stroke}
+              strokeWidth={2}
+              strokeScaleEnabled={false}
+              dash={selected ? [] : [6, 4]}
+            />
+          )}
+          <SwitchMarker keys={keys} pass={pass} size={markerSize} color={color} />
+          {showLabel && obj.label && (
+            <Text x={0} y={markerSize / 2 + 60} text={obj.label} fontSize={110} fontFamily="Inter, system-ui" fill="#3a3f4a" align="center" width={1400} offsetX={700} listening={false} />
+          )}
+          {showLabel && obj.mountHeight != null && (
+            <Text x={0} y={markerSize / 2 + 200} text={fmtHeight(obj.mountHeight)} fontSize={90} fontFamily="Inter, system-ui" fill="#7a6e54" align="center" width={1400} offsetX={700} listening={false} />
+          )}
+        </Group>
+      );
+    }
     return (
       <Group rotation={obj.rotation}>
         {(selected || hovered) && (
