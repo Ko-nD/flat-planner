@@ -3,7 +3,7 @@ import { useProject } from '../../store/projectStore';
 import { findCatalog, LAYER_NAME } from '../../catalog/catalog';
 import { fmtArea, parseSize } from '../../utils/format';
 import { pointInPolygon } from '../../utils/geometry';
-import type { Opening } from '../../types';
+import type { Opening, Room } from '../../types';
 
 function NumInput({ value, onChange, suffix }: { value: number; onChange: (v: number) => void; suffix?: string }) {
   const display = String(Math.round(value / 10));
@@ -34,6 +34,7 @@ function NumInput({ value, onChange, suffix }: { value: number; onChange: (v: nu
 export function Properties() {
   const selectedIds = useProject((s) => s.selectedIds);
   const selectedOpeningIds = useProject((s) => s.selectedOpeningIds);
+  const selectedRoomIds = useProject((s) => s.selectedRoomIds);
   const objects = useProject((s) => s.objects);
   const updateObject = useProject((s) => s.updateObject);
   const removeObjects = useProject((s) => s.removeObjects);
@@ -41,6 +42,8 @@ export function Properties() {
   const geometry = useProject((s) => s.geometry);
   const updateOpening = useProject((s) => s.updateOpening);
   const removeSelectedOpenings = useProject((s) => s.removeSelectedOpenings);
+  const updateRoom = useProject((s) => s.updateRoom);
+  const removeSelectedRooms = useProject((s) => s.removeSelectedRooms);
 
   // ВАЖНО: все useMemo вызываются на каждом рендере, ДО любых early-return.
   // Иначе при переключении между «выбран проём» и «выбран объект» меняется число
@@ -62,6 +65,14 @@ export function Properties() {
     : null;
   if (singleOpening) {
     return <OpeningEditor opening={singleOpening} onUpdate={(p) => updateOpening(singleOpening.id, p)} onRemove={removeSelectedOpenings} />;
+  }
+
+  // Если выбрана ровно одна комната — показываем её редактор (имя, тип, площадь).
+  const singleRoom = selectedRoomIds.length === 1
+    ? geometry.rooms.find((r) => r.id === selectedRoomIds[0]) ?? null
+    : null;
+  if (singleRoom) {
+    return <RoomEditor room={singleRoom} onUpdate={(p) => updateRoom(singleRoom.id, p)} onRemove={removeSelectedRooms} />;
   }
 
   if (selected.length === 0) {
@@ -315,6 +326,89 @@ function OpeningEditor({ opening, onUpdate, onRemove }: {
 
         <div className="muted" style={{ fontSize: 11, marginTop: 12, lineHeight: 1.4 }}>
           Длина стены: <strong>{Math.round(wallLen / 10)} см</strong>.
+          Изменения откатываются <span className="kbd">Ctrl+Z</span>.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const ROOM_KIND_LABELS: Record<Room['kind'], string> = {
+  living: 'Жилая комната',
+  kitchen: 'Кухня',
+  bath: 'Ванная',
+  wc: 'Туалет',
+  hall: 'Коридор / прихожая',
+  balcony: 'Балкон',
+};
+
+function RoomEditor({ room, onUpdate, onRemove }: {
+  room: Room;
+  onUpdate: (patch: Partial<Room>) => void;
+  onRemove: () => void;
+}) {
+  return (
+    <div className="panel" style={{ flex: 1, minHeight: 0 }}>
+      <div className="panel-header">
+        Свойства комнаты
+        <button className="btn btn--small" style={{ marginLeft: 'auto' }} onClick={onRemove} title="Удалить комнату (полигон + подпись)">Удалить</button>
+      </div>
+      <div className="panel-body" style={{ flex: 1 }}>
+        <div style={{ marginBottom: 6 }}>
+          <span className="tag" style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>{ROOM_KIND_LABELS[room.kind]}</span>
+        </div>
+
+        <div className="props-row">
+          <label>Название</label>
+          <input
+            type="text"
+            defaultValue={room.name}
+            placeholder="Например, Спальня 1"
+            onBlur={(e) => onUpdate({ name: e.target.value.trim() || room.name })}
+            onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+          />
+        </div>
+
+        <div className="props-row">
+          <label>Тип</label>
+          <select
+            value={room.kind}
+            onChange={(e) => onUpdate({ kind: e.target.value as Room['kind'] })}
+          >
+            {(Object.keys(ROOM_KIND_LABELS) as Room['kind'][]).map((k) => (
+              <option key={k} value={k}>{ROOM_KIND_LABELS[k]}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="props-row">
+          <label>Площадь (м²)</label>
+          <input
+            type="number"
+            step="0.1"
+            min="0"
+            defaultValue={room.area}
+            onBlur={(e) => {
+              const v = parseFloat(e.target.value.replace(',', '.'));
+              if (Number.isFinite(v) && v >= 0) onUpdate({ area: +v.toFixed(2) });
+              else e.target.value = String(room.area);
+            }}
+          />
+        </div>
+
+        <div className="props-row" style={{ gridTemplateColumns: '1fr', alignItems: 'start' }}>
+          <label style={{ marginBottom: 4 }}>Заметка</label>
+          <textarea
+            defaultValue={room.notes ?? ''}
+            placeholder="Свободные заметки про эту комнату"
+            rows={3}
+            onBlur={(e) => onUpdate({ notes: e.target.value.trim() || undefined })}
+            style={{ width: '100%', resize: 'vertical', minHeight: 60 }}
+          />
+        </div>
+
+        <div className="muted" style={{ fontSize: 11, marginTop: 12, lineHeight: 1.4 }}>
+          Полигон комнаты редактируется маркерами на её вершинах прямо на холсте.
           Изменения откатываются <span className="kbd">Ctrl+Z</span>.
         </div>
       </div>

@@ -109,6 +109,8 @@ interface ProjectStore {
   removeSelectedOpenings: () => void;
   updateOpening: (id: string, patch: Partial<import('../types').Opening>) => void;
 
+  updateRoom: (id: string, patch: Partial<import('../types').Room>) => void;
+
   setHover: (id: string | null) => void;
 
   setLayerVisible: (l: LayerId, v: boolean) => void;
@@ -342,6 +344,14 @@ export const useProject = create<ProjectStore>((set, get) => {
       geometry: {
         ...s.geometry,
         openings: s.geometry.openings.map((o) => (o.id === id ? { ...o, ...patch } : o)),
+      },
+    })),
+
+    updateRoom: (id, patch) => set((s) => ({
+      ...pushHistory(s),
+      geometry: {
+        ...s.geometry,
+        rooms: s.geometry.rooms.map((r) => (r.id === id ? { ...r, ...patch } : r)),
       },
     })),
 

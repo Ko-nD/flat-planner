@@ -13,7 +13,7 @@ import { buildBlankPlan } from '../../templates/blankPlan';
 import { BtiImportDialog } from './BtiImportDialog';
 import { buildShareUrl } from '../../utils/share';
 import { DropdownMenu } from './DropdownMenu';
-import { GridSettings } from './GridSettings';
+import { SettingsPopover } from './SettingsPopover';
 import { exportJsonFile, exportMarkdown } from '../../utils/export';
 import { polygonCentroid } from '../../utils/geometry';
 import type { ProjectData } from '../../types';
@@ -211,9 +211,6 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi, isMobile = fa
         </div>
       )}
 
-      <div className="tb-group">
-        <GridSettings />
-      </div>
 
       <div className="tb-group">
         <button className="btn btn--small" onClick={() => setView({ scale: Math.min(0.6, view.scale * 1.2) })} title="Приблизить">＋</button>
@@ -290,30 +287,10 @@ export function Toolbar({ onExportPng, onExportPdf, onExportForAi, isMobile = fa
         )}
         <button className="btn btn--small" onClick={() => setShowHelp(true)} title="Горячие клавиши">?</button>
         {!isMobile && (
-          <DropdownMenu
-            trigger={<>⚙ ▾</>}
-            triggerTitle="Сервисные действия: сбросить расстановку или перечитать шаблон с диска"
-            align="right"
-            items={[
-              {
-                icon: '↺',
-                label: 'Сброс расстановки',
-                title: 'Очистить все размещённые объекты и вернуться к загруженному шаблону',
-                onClick: () => {
-                  if (objects.length && !confirm('Очистить все размещённые объекты? Это действие нельзя отменить.')) return;
-                  resetProject();
-                },
-              },
-              {
-                icon: '↻',
-                label: 'Перечитать project.json',
-                title: 'Очистить localStorage и заново загрузить public/project.json (no-cache)',
-                onClick: async () => {
-                  if (objects.length && !confirm('Перечитать project.json с диска? Локальная расстановка будет очищена.')) return;
-                  await forceReloadTemplate();
-                },
-              },
-            ]}
+          <SettingsPopover
+            hasObjects={objects.length > 0}
+            onResetProject={resetProject}
+            onReloadTemplate={forceReloadTemplate}
           />
         )}
       </div>

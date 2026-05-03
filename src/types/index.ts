@@ -53,6 +53,7 @@ export interface Room {
   polygon: Vec2[];
   area: number; // м² (по экспликации)
   kind: 'living' | 'kitchen' | 'bath' | 'wc' | 'hall' | 'balcony';
+  notes?: string;
 }
 
 export type CatalogSymbol =
