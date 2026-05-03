@@ -534,7 +534,16 @@ export function PlanCanvas() {
                         catalog={cat}
                         selected={selected}
                         hovered={hovered}
-                        showLabel={!isMarker(o.layer) || selected || hovered}
+                        showLabel={
+                          // Маркеры (розетки/выключатели/датчики) скрывают подпись по умолчанию
+                          // — она появляется при hover/selection. Но физические объекты,
+                          // живущие в маркерных слоях (торшер 400мм в lights), считаем
+                          // мебелью и подпись показываем всегда.
+                          !isMarker(o.layer)
+                          || ((cat?.symbol === 'rect' || cat?.symbol === 'circle') && Math.max(o.width, o.depth) >= 300)
+                          || selected
+                          || hovered
+                        }
                       />
                       {/* Visual rotate handle для одиночно выбранного нет-маркер объекта */}
                       {selected && selectedIds.length === 1 && !isMarker(o.layer) && (
