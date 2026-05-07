@@ -370,6 +370,7 @@ function HelpModal({ onClose }: { onClose: () => void }) {
 function TemplatesModal({ onClose }: { onClose: () => void }) {
   const geometry = useProject((s) => s.geometry);
   const addManyObjects = useProject((s) => s.addManyObjects);
+  const select = useProject((s) => s.select);
   const [chosenRoomId, setChosenRoomId] = useState<string>(geometry.rooms[0]?.id ?? '');
 
   const room = geometry.rooms.find((r) => r.id === chosenRoomId);
@@ -381,6 +382,11 @@ function TemplatesModal({ onClose }: { onClose: () => void }) {
     // Назначим уникальные id заново
     const withIds = objects.map((o) => ({ ...o, id: newObjectId(), roomId: room.id }));
     addManyObjects(withIds);
+    // Автоматически выделяем все новые объекты — сразу можно тащить группой
+    // и одним Ctrl+Z откатить добавление + последующее перемещение.
+    select(withIds.map((o) => o.id));
+    // Закрываем диалог, чтобы холст с уже выделенным гарнитуром был на виду
+    onClose();
   };
 
   return (

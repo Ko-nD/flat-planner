@@ -156,6 +156,11 @@ interface ProjectStore {
   beginGeometryEdit: () => void;
   updateWallEndpointLive: (wallId: string, end: 'a' | 'b', point: { x: number; y: number }) => void;
   updateRoomVertexLive: (roomId: string, vertexIdx: number, point: { x: number; y: number }) => void;
+
+  // То же для перетаскивания объектов: один snapshot на всё перетаскивание.
+  // Ctrl+Z откатывает весь drag целиком, а не каждый пиксель.
+  beginObjectEdit: () => void;
+  updateObjectLive: (id: string, patch: Partial<PlacedObject>) => void;
 }
 
 const newId = () => Math.random().toString(36).slice(2, 10);
@@ -557,6 +562,11 @@ export const useProject = create<ProjectStore>((set, get) => {
           return { ...r, polygon, area };
         }),
       },
+    })),
+
+    beginObjectEdit: () => set((s) => ({ ...pushHistory(s) })),
+    updateObjectLive: (id, patch) => set((s) => ({
+      objects: s.objects.map((o) => (o.id === id ? { ...o, ...patch } : o)),
     })),
 
     undo: () => set((s) => {

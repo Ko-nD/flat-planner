@@ -70,12 +70,17 @@ export function PlanCanvas() {
   const setHover = useProject((s) => s.setHover);
   const addObject = useProject((s) => s.addObject);
   const updateObject = useProject((s) => s.updateObject);
+  const beginObjectEdit = useProject((s) => s.beginObjectEdit);
+  const updateObjectLive = useProject((s) => s.updateObjectLive);
   const cancelPlacement = useProject((s) => s.cancelPlacement);
   const addWall = useProject((s) => s.addWall);
   const addRoom = useProject((s) => s.addRoom);
   const addOpening = useProject((s) => s.addOpening);
 
   const stageRef = useRef<Konva.Stage>(null);
+  // Снимок начальных позиций всех drag-целей: используется для group-drag нескольких
+  // выделенных объектов. Ключ — id объекта; источник drag-а помечен флагом __source__.
+  const dragSnapshotRef = useRef<Map<string, { x: number; y: number }> | null>(null);
   const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null);
   const [panning, setPanning] = useState(false);
   const [spaceDown, setSpaceDown] = useState(false);
@@ -408,7 +413,28 @@ export function PlanCanvas() {
   };
 
   // Перетаскивание объекта — обновление позиции с привязкой
-  const onDragMove = (id: string) => (e: Konva.KonvaEventObject<DragEvent>) => {
+  const onObjectDragStart = (id: string) => (e: Konva.KonvaEventObject<DragEvent>) => {
+    e.cancelBubble = true;
+    // Если тащат не-выделенный объект — мгновенно меняем выделение на него
+    let group: string[];
+    if (!selectedIds.includes(id)) {
+      select([id]);
+      group = [id];
+    } else {
+      group = selectedIds;
+    }
+    // Один snapshot истории на всё перетаскивание (одно Ctrl+Z откатит весь drag).
+    beginObjectEdit();
+    // Сохраним стартовые позиции каждого объекта группы — нужно для group-drag по delta.
+    const map = new Map<string, { x: number; y: number }>();
+    for (const oid of group) {
+      const o = objects.find((x) => x.id === oid);
+      if (o) map.set(oid, { x: o.x, y: o.y });
+    }
+    dragSnapshotRef.current = map;
+  };
+
+  const onObjectDragMove = (id: string) => (e: Konva.KonvaEventObject<DragEvent>) => {
     const node = e.target;
     let x = node.x();
     let y = node.y();
@@ -417,8 +443,35 @@ export function PlanCanvas() {
       y = snap(y, snapMm);
       node.position({ x, y });
     }
-    updateObject(id, { x, y });
+    const map = dragSnapshotRef.current;
+    if (!map || map.size <= 1) {
+      // Один объект — простой случай
+      updateObjectLive(id, { x, y });
+      return;
+    }
+    // Группа — двигаем всех на одну дельту от их стартовых координат.
+    const origin = map.get(id);
+    if (!origin) {
+      updateObjectLive(id, { x, y });
+      return;
+    }
+    const dx = x - origin.x;
+    const dy = y - origin.y;
+    for (const [oid, o] of map.entries()) {
+      if (oid === id) {
+        updateObjectLive(oid, { x, y });
+      } else {
+        updateObjectLive(oid, { x: o.x + dx, y: o.y + dy });
+      }
+    }
   };
+
+  const onObjectDragEnd = () => {
+    dragSnapshotRef.current = null;
+  };
+
+  // Совместимость со старым кодом — отдаёт пару хендлеров для одиночного объекта
+  const onDragMove = onObjectDragMove;
 
   const visibleLayers = useMemo(() => {
     const set: Record<LayerId, boolean> = layerVisibility;
@@ -516,11 +569,9 @@ export function PlanCanvas() {
                       x={o.x}
                       y={o.y}
                       draggable={tool === 'select' || tool === 'place'}
-                      onDragStart={(e) => {
-                        if (!selectedIds.includes(o.id)) select([o.id]);
-                        e.cancelBubble = true;
-                      }}
-                      onDragMove={onDragMove(o.id)}
+                      onDragStart={onObjectDragStart(o.id)}
+                      onDragMove={onObjectDragMove(o.id)}
+                      onDragEnd={onObjectDragEnd}
                       onMouseDown={(e) => {
                         if (tool !== 'select') return;
                         e.cancelBubble = true;
