@@ -78,6 +78,99 @@ export const TEMPLATE_KITCHEN_BLOCK: TemplateGroup = {
   ],
 };
 
+// === Кухонные гарнитуры (мебель + техника) ===
+// Все шаблоны кладут модули в одну линию по оси X с центром у anchor.x. Глубина
+// корпусов 600 мм, центр по Y совпадает с anchor.y — пользователь потом тащит весь
+// набор к стене (или применяет шаблон у нужной стены). Под газовую плиту 60×60
+// предусмотрен «слот» — модуль stove-gas-60 встаёт на месте, между шкафами.
+
+// Линейная мини 1.6 м — типовой формат хрущёвки/студии.
+// Раскладка: [600 шкаф под мойку] [600 газ.плита] [400 шкаф] = 1600 мм.
+export const TEMPLATE_KITCHEN_LINEAR_16: TemplateGroup = {
+  id: 'kitchen-linear-16',
+  title: '🍳 Линейная кухня 1.6 м (с местом под газ. плиту)',
+  description: '3 модуля + мойка + газовая плита 60×60. Длина по стене 1.6 м — для хрущёвок/студий',
+  forKind: 'kitchen',
+  items: [
+    { catalogId: 'kitchen-cab-60', dx: -500, dy: 0, label: 'Тумба под мойку 600' },
+    { catalogId: 'kitchen-sink',   dx: -500, dy: 0, label: 'Мойка одиночная' },
+    { catalogId: 'stove-gas-60',   dx:  100, dy: 0, label: 'Газовая плита 60' },
+    { catalogId: 'kitchen-cab-40', dx:  600, dy: 0, label: 'Кух. шкаф 400' },
+  ],
+};
+
+// Линейная 2.0 м — компактная стандартная.
+// Раскладка: [600 мойка] [600 плита] [400 шкаф] [400 шкаф] = 2000 мм.
+export const TEMPLATE_KITCHEN_LINEAR_20: TemplateGroup = {
+  id: 'kitchen-linear-20',
+  title: '🍳 Линейная кухня 2.0 м',
+  description: 'Тумба-мойка + газ. плита 60 + 2 верхних шкафа 400. Длина 2.0 м',
+  forKind: 'kitchen',
+  items: [
+    { catalogId: 'kitchen-cab-60', dx: -700, dy: 0, label: 'Тумба под мойку 600' },
+    { catalogId: 'kitchen-sink',   dx: -700, dy: 0, label: 'Мойка одиночная' },
+    { catalogId: 'stove-gas-60',   dx: -100, dy: 0, label: 'Газовая плита 60' },
+    { catalogId: 'kitchen-cab-40', dx:  400, dy: 0, label: 'Кух. шкаф 400' },
+    { catalogId: 'kitchen-cab-40', dx:  800, dy: 0, label: 'Кух. шкаф 400' },
+  ],
+};
+
+// Линейная 2.4 м — стандартная серийная.
+// [600 мойка] [600 плита] [600 шкаф] [600 шкаф] = 2400 мм.
+export const TEMPLATE_KITCHEN_LINEAR_24: TemplateGroup = {
+  id: 'kitchen-linear-24',
+  title: '🍳 Линейная кухня 2.4 м (стандарт)',
+  description: 'Тумба-мойка + газ. плита 60 + 2 шкафа 600. Длина 2.4 м — типовой набор IKEA Method/Hoff',
+  forKind: 'kitchen',
+  items: [
+    { catalogId: 'kitchen-cab-60', dx: -900, dy: 0, label: 'Тумба под мойку 600' },
+    { catalogId: 'kitchen-sink',   dx: -900, dy: 0, label: 'Мойка одиночная' },
+    { catalogId: 'stove-gas-60',   dx: -300, dy: 0, label: 'Газовая плита 60' },
+    { catalogId: 'kitchen-cab-60', dx:  300, dy: 0, label: 'Кух. шкаф 600' },
+    { catalogId: 'kitchen-cab-60', dx:  900, dy: 0, label: 'Кух. шкаф 600' },
+  ],
+};
+
+// Линейная 3.0 м с холодильником — для просторной кухни.
+// [600 холодильник] [600 мойка двойная] [600 плита] [600 шкаф] [600 шкаф] = 3000 мм.
+export const TEMPLATE_KITCHEN_LINEAR_30: TemplateGroup = {
+  id: 'kitchen-linear-30',
+  title: '🍳 Линейная кухня 3.0 м (с холодильником)',
+  description: 'Холодильник + двойная мойка + газ. плита + 2 шкафа 600. Длина 3.0 м',
+  forKind: 'kitchen',
+  items: [
+    { catalogId: 'fridge-200',     dx: -1200, dy: -25, label: 'Холодильник 200 см' },
+    { catalogId: 'kitchen-cab-60', dx:  -600, dy: 0,   label: 'Тумба под мойку 600' },
+    { catalogId: 'kitchen-sink-2', dx:  -600, dy: 0,   label: 'Двойная мойка' },
+    { catalogId: 'stove-gas-60',   dx:     0, dy: 0,   label: 'Газовая плита 60' },
+    { catalogId: 'kitchen-cab-60', dx:   600, dy: 0,   label: 'Кух. шкаф 600' },
+    { catalogId: 'kitchen-cab-60', dx:  1200, dy: 0,   label: 'Кух. шкаф 600' },
+  ],
+};
+
+// Угловая Г-образная 1.6 × 2.0 м — для типовой кухни 6-8 м².
+// Длинная стенка по X (1600): [600 мойка] [600 плита] [400 шкаф].
+// Угловая 900×900 в углу.
+// Короткая стенка по Y (1100): [600 шкаф] [500 шкаф], повёрнуты на 90°.
+export const TEMPLATE_KITCHEN_CORNER_L: TemplateGroup = {
+  id: 'kitchen-corner-l',
+  title: '🍳 Угловая кухня Г-образная 1.6×2.0 м',
+  description: 'Длинная стена с мойкой и газ. плитой + угловой шкаф + короткая стена со шкафами. Для кухонь 6-8 м²',
+  forKind: 'kitchen',
+  items: [
+    // Длинная стена (X-axis)
+    { catalogId: 'kitchen-cab-60', dx: -800, dy: 0, label: 'Тумба под мойку 600' },
+    { catalogId: 'kitchen-sink',   dx: -800, dy: 0, label: 'Мойка одиночная' },
+    { catalogId: 'stove-gas-60',   dx: -200, dy: 0, label: 'Газовая плита 60' },
+    { catalogId: 'kitchen-cab-40', dx:  300, dy: 0, label: 'Кух. шкаф 400' },
+    // Угол (l-shape 900×900)
+    { catalogId: 'kitchen-corner', dx:  950, dy: 450, label: 'Угловой шкаф 900' },
+    // Короткая стена (Y-axis), повёрнуто на 90°
+    { catalogId: 'kitchen-cab-60', dx: 1100, dy: 1200, rotation: 90, label: 'Кух. шкаф 600 (поворот)' },
+    { catalogId: 'kitchen-cab-50', dx: 1100, dy: 1750, rotation: 90, label: 'Кух. шкаф 500 (поворот)' },
+  ],
+};
+
 export const TEMPLATE_BATH_BASIC: TemplateGroup = {
   id: 'bath-basic',
   title: 'Ванная: стиральная + бойлер + подсветка',
@@ -110,6 +203,11 @@ export const ALL_TEMPLATES: TemplateGroup[] = [
   TEMPLATE_BEDROOM_DESK,
   TEMPLATE_LIVING_TV,
   TEMPLATE_KITCHEN_BLOCK,
+  TEMPLATE_KITCHEN_LINEAR_16,
+  TEMPLATE_KITCHEN_LINEAR_20,
+  TEMPLATE_KITCHEN_LINEAR_24,
+  TEMPLATE_KITCHEN_LINEAR_30,
+  TEMPLATE_KITCHEN_CORNER_L,
   TEMPLATE_BATH_BASIC,
   TEMPLATE_HALL_BASIC,
 ];
