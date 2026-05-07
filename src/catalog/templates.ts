@@ -154,8 +154,8 @@ export const TEMPLATE_KITCHEN_LINEAR_30: TemplateGroup = {
 // Короткая стенка по Y (1100): [600 шкаф] [500 шкаф], повёрнуты на 90°.
 export const TEMPLATE_KITCHEN_CORNER_L: TemplateGroup = {
   id: 'kitchen-corner-l',
-  title: '🍳 Угловая кухня Г-образная 1.6×2.0 м',
-  description: 'Длинная стена с мойкой и газ. плитой + угловой шкаф + короткая стена со шкафами. Для кухонь 6-8 м²',
+  title: '🍳 Угловая Г-образная 1.6×2.0 м (компакт)',
+  description: 'Длинная стена с мойкой и газ. плитой + угловой шкаф + короткая со шкафами. Для кухонь 6-8 м²',
   forKind: 'kitchen',
   items: [
     // Длинная стена (X-axis)
@@ -168,6 +168,97 @@ export const TEMPLATE_KITCHEN_CORNER_L: TemplateGroup = {
     // Короткая стена (Y-axis), повёрнуто на 90°
     { catalogId: 'kitchen-cab-60', dx: 1100, dy: 1200, rotation: 90, label: 'Кух. шкаф 600 (поворот)' },
     { catalogId: 'kitchen-cab-50', dx: 1100, dy: 1750, rotation: 90, label: 'Кух. шкаф 500 (поворот)' },
+  ],
+};
+
+// Угловая 1.8×2.4 м — стандарт для квартиры с кухней 7-9 м².
+// Длинная стена 1800: [600 мойка] [600 плита] [600 шкаф] + угловой 900.
+// Короткая стена 2400: угловой + [600 шкаф] [500 шкаф] [400 шкаф].
+export const TEMPLATE_KITCHEN_CORNER_L_18_24: TemplateGroup = {
+  id: 'kitchen-corner-l-18-24',
+  title: '🍳 Угловая Г-образная 1.8×2.4 м',
+  description: 'Длинная стена 1.8 м (мойка + плита + шкаф) + угловой + короткая 2.4 м (3 шкафа). Кухня 7-9 м²',
+  forKind: 'kitchen',
+  items: [
+    { catalogId: 'kitchen-cab-60', dx: -900, dy: 0, label: 'Тумба под мойку 600' },
+    { catalogId: 'kitchen-sink',   dx: -900, dy: 0, label: 'Мойка одиночная' },
+    { catalogId: 'stove-gas-60',   dx: -300, dy: 0, label: 'Газовая плита 60' },
+    { catalogId: 'kitchen-cab-60', dx:  300, dy: 0, label: 'Кух. шкаф 600' },
+    { catalogId: 'kitchen-corner', dx:  1050, dy: 450, label: 'Угловой шкаф 900' },
+    { catalogId: 'kitchen-cab-60', dx: 1200, dy: 1200, rotation: 90, label: 'Кух. шкаф 600' },
+    { catalogId: 'kitchen-cab-50', dx: 1200, dy: 1750, rotation: 90, label: 'Кух. шкаф 500' },
+    { catalogId: 'kitchen-cab-40', dx: 1200, dy: 2200, rotation: 90, label: 'Кух. шкаф 400' },
+  ],
+};
+
+// Угловая 2.0×2.7 м — для просторной кухни 9-11 м² с двойной мойкой.
+// Длинная 2000: [600 мойка двойн.] [600 плита] [800 шкаф] + угловой 900.
+// Короткая 2700: угловой + [600 шкаф] [600 шкаф] [600 шкаф].
+export const TEMPLATE_KITCHEN_CORNER_L_20_27: TemplateGroup = {
+  id: 'kitchen-corner-l-20-27',
+  title: '🍳 Угловая Г-образная 2.0×2.7 м',
+  description: 'Длинная 2 м с двойной мойкой + угловой + короткая 2.7 м с 3 шкафами. Кухня 9-11 м²',
+  forKind: 'kitchen',
+  items: [
+    { catalogId: 'kitchen-cab-60', dx: -1000, dy: 0, label: 'Тумба под мойку 600' },
+    { catalogId: 'kitchen-sink-2', dx: -1000, dy: 0, label: 'Двойная мойка' },
+    { catalogId: 'stove-gas-60',   dx:  -400, dy: 0, label: 'Газовая плита 60' },
+    { catalogId: 'kitchen-cab-80', dx:   300, dy: 0, label: 'Кух. шкаф 800' },
+    { catalogId: 'kitchen-corner', dx:  1150, dy: 450, label: 'Угловой шкаф 900' },
+    { catalogId: 'kitchen-cab-60', dx: 1300, dy: 1200, rotation: 90, label: 'Кух. шкаф 600' },
+    { catalogId: 'kitchen-cab-60', dx: 1300, dy: 1800, rotation: 90, label: 'Кух. шкаф 600' },
+    { catalogId: 'kitchen-cab-60', dx: 1300, dy: 2400, rotation: 90, label: 'Кух. шкаф 600' },
+  ],
+};
+
+// Угловая 2.4×3.0 м с холодильником — для кухни 12+ м².
+// Длинная 2400: [600 мойка] [600 плита] [600 шкаф] [600 шкаф] + угловой.
+// Короткая 3000: угловой + [600 холодильник] [600 шкаф] [800 пенал] [500 шкаф].
+export const TEMPLATE_KITCHEN_CORNER_L_24_30: TemplateGroup = {
+  id: 'kitchen-corner-l-24-30',
+  title: '🍳 Угловая Г-образная 2.4×3.0 м (с холодильником)',
+  description: 'Длинная 2.4 м с мойкой и плитой + угловой + короткая 3 м с холодильником, пеналом и шкафами. Большая кухня 12+ м²',
+  forKind: 'kitchen',
+  items: [
+    { catalogId: 'kitchen-cab-60', dx: -1200, dy: 0, label: 'Тумба под мойку 600' },
+    { catalogId: 'kitchen-sink',   dx: -1200, dy: 0, label: 'Мойка одиночная' },
+    { catalogId: 'stove-gas-60',   dx:  -600, dy: 0, label: 'Газовая плита 60' },
+    { catalogId: 'kitchen-cab-60', dx:     0, dy: 0, label: 'Кух. шкаф 600' },
+    { catalogId: 'kitchen-cab-60', dx:   600, dy: 0, label: 'Кух. шкаф 600' },
+    { catalogId: 'kitchen-corner', dx:  1350, dy: 450, label: 'Угловой шкаф 900' },
+    { catalogId: 'fridge-200',     dx:  1475, dy: 1200, rotation: 90, label: 'Холодильник 200 см' },
+    { catalogId: 'kitchen-cab-60', dx:  1500, dy: 1800, rotation: 90, label: 'Кух. шкаф 600' },
+    { catalogId: 'kitchen-pantry', dx:  1500, dy: 2500, rotation: 90, label: 'Шкаф-пенал' },
+    { catalogId: 'kitchen-cab-50', dx:  1500, dy: 3050, rotation: 90, label: 'Кух. шкаф 500' },
+  ],
+};
+
+// П-образная 1.8×2.4×1.8 м — кухня 8-10 м² с тремя стенами и двумя углами.
+// Слева 1800 (Y вертикально, 3 модуля) + угловой → горизонталь 2400 + угловой → справа 1800 (Y вертикально, 3 модуля).
+// Anchor — внутренний угол левой пары. Wall A — горизонтальная (низ), wall B — правая вертикальная.
+export const TEMPLATE_KITCHEN_U_SHAPE: TemplateGroup = {
+  id: 'kitchen-u-shape',
+  title: '🍳 П-образная 1.8×2.4×1.8 м',
+  description: 'Три стены: слева 1.8 м (3 шкафа), горизонтальная 2.4 м (мойка + плита + шкаф), справа 1.8 м (3 шкафа) + 2 угловых. Кухня 8-10 м²',
+  forKind: 'kitchen',
+  items: [
+    // Левая стена — вертикальная, 3 шкафа (rotation 90)
+    { catalogId: 'kitchen-cab-60', dx: 300, dy: -1500, rotation: 90, label: 'Левая ст.: шкаф 600' },
+    { catalogId: 'kitchen-cab-60', dx: 300, dy: -900,  rotation: 90, label: 'Левая ст.: шкаф 600' },
+    { catalogId: 'kitchen-cab-60', dx: 300, dy: -300,  rotation: 90, label: 'Левая ст.: шкаф 600' },
+    // Левый угол
+    { catalogId: 'kitchen-corner', dx: 450, dy: 450, label: 'Левый угловой 900' },
+    // Горизонтальная стена снизу — мойка/плита/шкаф
+    { catalogId: 'kitchen-cab-60', dx: 1200, dy: 300, label: 'Тумба под мойку 600' },
+    { catalogId: 'kitchen-sink',   dx: 1200, dy: 300, label: 'Мойка одиночная' },
+    { catalogId: 'stove-gas-60',   dx: 1800, dy: 300, label: 'Газовая плита 60' },
+    { catalogId: 'kitchen-cab-60', dx: 2400, dy: 300, label: 'Кух. шкаф 600' },
+    // Правый угол
+    { catalogId: 'kitchen-corner', dx: 3150, dy: 450, label: 'Правый угловой 900' },
+    // Правая стена — вертикальная, 3 шкафа (rotation -90 / 270)
+    { catalogId: 'kitchen-cab-60', dx: 3300, dy: -300,  rotation: 90, label: 'Правая ст.: шкаф 600' },
+    { catalogId: 'kitchen-cab-60', dx: 3300, dy: -900,  rotation: 90, label: 'Правая ст.: шкаф 600' },
+    { catalogId: 'kitchen-cab-60', dx: 3300, dy: -1500, rotation: 90, label: 'Правая ст.: шкаф 600' },
   ],
 };
 
@@ -208,6 +299,10 @@ export const ALL_TEMPLATES: TemplateGroup[] = [
   TEMPLATE_KITCHEN_LINEAR_24,
   TEMPLATE_KITCHEN_LINEAR_30,
   TEMPLATE_KITCHEN_CORNER_L,
+  TEMPLATE_KITCHEN_CORNER_L_18_24,
+  TEMPLATE_KITCHEN_CORNER_L_20_27,
+  TEMPLATE_KITCHEN_CORNER_L_24_30,
+  TEMPLATE_KITCHEN_U_SHAPE,
   TEMPLATE_BATH_BASIC,
   TEMPLATE_HALL_BASIC,
 ];
